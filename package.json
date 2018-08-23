@@ -2,15 +2,15 @@
   "name": "abea-backend-challenge",
   "version": "1.0.0",
   "description": "P'unk Avenue Node.js Backend Challenge",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://bitbucket.org/abea/backend-challenge.git"
+    "url": "git+https://bitbucket.org/abea/abea-backend-challenge.git"
   },
   "author": "Alex Bea",
   "license": "ISC",
-  "homepage": "https://bitbucket.org/abea/backend-challenge#readme"
+  "homepage": "https://bitbucket.org/abea/abea-backend-challenge#readme"
 }
