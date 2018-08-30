@@ -12,5 +12,14 @@
   },
   "author": "Alex Bea",
   "license": "ISC",
-  "homepage": "https://bitbucket.org/abea/abea-backend-challenge#readme"
+  "homepage": "https://bitbucket.org/abea/abea-backend-challenge#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "moment": "^2.22.2",
+    "mongoose": "^5.2.10",
+    "mongoose-mongodb-errors": "0.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.4"
+  }
 }
