@@ -14,7 +14,7 @@ mongoose.connection.on('error', (err) => {
 
 // Data models.
 require('./models/StationDay');
-// require('./models/Weather');
+require('./models/Weather');
 
 const app = require('./app');
 app.set('port', process.env.PORT || 7777);
