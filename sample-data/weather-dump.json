@@ -1,0 +1,45 @@
+{
+  "coord": {
+    "lon": -75.16,
+    "lat": 39.95
+  },
+  "weather": [
+    {
+      "id": 501,
+      "main": "Rain",
+      "description": "moderate rain",
+      "icon": "10d"
+    }
+  ],
+  "base": "stations",
+  "main": {
+    "temp": 298.13,
+    "pressure": 1026,
+    "humidity": 73,
+    "temp_min": 296.45,
+    "temp_max": 299.85
+  },
+  "visibility": 16093,
+  "wind": {
+    "speed": 3.1,
+    "deg": 60
+  },
+  "rain": {
+    "1h": 2.03
+  },
+  "clouds": {
+    "all": 75
+  },
+  "dt": 1535825700,
+  "sys": {
+    "type": 1,
+    "id": 2361,
+    "message": 0.0045,
+    "country": "US",
+    "sunrise": 1535797753,
+    "sunset": 1535844647
+  },
+  "id": 4560349,
+  "name": "Philadelphia",
+  "cod": 200
+}
