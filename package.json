@@ -7,7 +7,7 @@
     "pretest": "eslint --ignore-path .gitignore .",
     "start": "node start",
     "dev": "nodemon start --exec 'npm run pretest && node'",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -17,6 +17,8 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/abea/abea-backend-challenge#readme",
   "dependencies": {
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "moment": "^2.22.2",
@@ -31,7 +33,7 @@
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.8.0",
     "eslint-plugin-standard": "^3.1.0",
-    "mocha": "^5.1.1",
+    "mocha": "^5.2.0",
     "nodemon": "^1.18.4"
   }
 }
