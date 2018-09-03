@@ -3,8 +3,6 @@ const {expect} = require('chai');
 const Weather = require('../models/Weather');
 const StationDay = require('../models/StationDay');
 
-require('dotenv').config({ path: `${__dirname}/../variables.env` });
-
 const basicData = {
   _id: '1234',
   string: 'Whatchamacallit',
