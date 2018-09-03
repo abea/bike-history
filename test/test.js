@@ -1,41 +1,55 @@
 const mongoose = require('mongoose');
-// const {expect} = require('chai');
+const {expect} = require('chai');
+const Weather = require('../models/Weather');
+const StationDay = require('../models/StationDay');
 
-// const Weather = require('../models/Weather');
-// const StationDay = require('../models/StationDay');
 require('dotenv').config({ path: `${__dirname}/../variables.env` });
 
-describe('Adding stations', function() {
-  // Before starting the test, create a sandboxed database connection
+const basicData = {
+  _id: '1234',
+  string: 'Whatchamacallit',
+  number: 8675309,
+  boolean: true,
+  array: ['19147']
+};
+
+describe('Database', function() {
+  // create a sandboxed database connection
   before((done) => {
-    mongoose.connect('mongodb://localhost/tests');
+    mongoose.connect('mongodb://localhost/test', { useNewUrlParser: true });
     const db = mongoose.connection;
 
-    db.on('error', (err) => { done(err); });
+    db.on('error', (err) => {
+      console.error('🙅‍ Test database did not connect.');
+      done(err);
+    });
 
-    db.once('open', () => { done(); });
+    db.once('open', () => {
+      console.log('🙆‍ Test database connected!');
+      done();
+    });
   });
 
   describe('Station save', function() {
-    it('should fail if missing the kioskId field', async () => {
-      // Hit route with bad station data as req.body.
-      // Route processes the data, trying to save the station update.
-      // Data processing fails because there's no kioskId.
+    this.timeout(5000);
+    it('should succesfully save data.', async () => {
+      const station = await (StationDay(basicData)).save();
+      expect(station._id).to.equal(basicData._id);
+    });
+  });
 
-      // const stationData = {
-      //   addressStreet: '1168 E. Passyunk',
-      //   addressCity: 'Philadelphia',
-      //   addressState: 'PA',
-      //   addressZipCode: '19147'
-      // };
-
-      // expect(saver).to.throw();
+  describe('Weather save', function() {
+    this.timeout(5000);
+    it('should succesfully save data.', async () => {
+      const weather = await (Weather(basicData)).save();
+      expect(weather._id).to.equal(basicData._id);
     });
   });
 
   // After all tests are finished drop database and close connection
   after(function(done) {
     mongoose.connection.db.dropDatabase(function () {
+      console.log('👋 Test database dropped and disconnected.');
       mongoose.connection.close(done);
     });
   });
