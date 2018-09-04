@@ -23,6 +23,13 @@ function getWeather () {
     });
 }
 
+// const weatherPostOptions = {
+//   method: 'POST',
+//   uri: `${process.env.ROOT_URL}/api/v1/post/weather`,
+//   body: {weather},
+//   json: true
+// };
+
 async function init () {
   const weather = await getWeather();
 
