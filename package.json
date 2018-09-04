@@ -8,7 +8,7 @@
     "start": "node start",
     "dev": "nodemon start --exec 'npm run pretest && node'",
     "test": "mocha",
-    "sync": "node ./scripts/get-data.js"
+    "get-data": "node ./scripts/get-data.js"
   },
   "repository": {
     "type": "git",
