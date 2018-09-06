@@ -7,7 +7,7 @@ router.get('/', (req, res) => {
 });
 
 router.post('/api/v1/post/weather',
-  weatherController.prepareWeather
+  weatherController.prepWeather
 );
 
 module.exports = router;

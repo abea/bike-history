@@ -1,9 +1,17 @@
-exports.prepareWeather = (req, res) => {
-  // weatherObj = req.body.weather;
+exports.prepWeather = (req, res) => {
+  const data = req.body;
+  console.log(Object.keys(req.body));
 
+  const weather = data.weather;
   // Get the coordinates into geometry format.
-  // Copy timestamp and remove from weather object.
+  weather.geometry.coordinates = [weather.coord.lon, weather.coord.lat];
+  delete weather.coord;
+
   // return new weather object (req.body.weather) and timestamp (req.body.timestamp)
+  data.weather = weather;
+  console.log('🕙', data.timestamp);
+  console.log('⛈', data.weather);
+  // next();
 };
 
 exports.saveWeather = (req, res) => {

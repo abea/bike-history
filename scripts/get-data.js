@@ -14,8 +14,6 @@ function getWeather () {
     json: true
   })
     .then(weather => {
-      // - Add the timestamp to the weather results.
-      weather.timestamp = timestamp;
       return weather;
     })
     .catch(err => {
@@ -23,17 +21,26 @@ function getWeather () {
     });
 }
 
-// const weatherPostOptions = {
-//   method: 'POST',
-//   uri: `${process.env.ROOT_URL}/api/v1/post/weather`,
-//   body: {weather},
-//   json: true
-// };
-
 async function init () {
   const weather = await getWeather();
 
-  console.log(weather);
+  const weatherPostOptions = {
+    method: 'POST',
+    uri: `${process.env.ROOT_URL}/api/v1/post/weather`,
+    body: {
+      timestamp,
+      weather
+    }
+  };
+
+  request(weatherPostOptions)
+    .then(res => {
+      console.log('👍', Object.keys(res));
+      return null;
+    })
+    .catch(err => {
+      console.error('🚫', err.error);
+    });
 }
 
 init();
