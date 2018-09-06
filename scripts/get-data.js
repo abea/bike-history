@@ -30,12 +30,13 @@ async function init () {
     body: {
       timestamp,
       weather
-    }
+    },
+    json: true
   };
 
   request(weatherPostOptions)
     .then(res => {
-      console.log('👍', Object.keys(res));
+      console.log('👍', res);
       return null;
     })
     .catch(err => {
