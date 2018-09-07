@@ -39,7 +39,8 @@ const weatherFields = {
   },
   dt: Number,
   sys: {
-    type: Number,
+    // Extra layer to indicate this isn't the "type" of `sys`
+    type: {type: Number},
     id: Number,
     message: Number,
     country: String,
@@ -58,7 +59,7 @@ const hoursObject = {};
 for (const hour of hoursInDay) { hoursObject[hour] = weatherFields; }
 
 const schemaObj = Object.assign({
-  _id: String,
+  _id: String, // String format of the date in ISO date format.
   hours: hoursObject
 });
 

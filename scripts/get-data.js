@@ -34,9 +34,12 @@ async function init () {
     json: true
   };
 
+  // - Post the weather snapshot, with timestamp, to the weather route.
   request(weatherPostOptions)
     .then(res => {
-      console.log('👍', res);
+      if (!res) {
+        throw Error('No document returned from weather post request.');
+      }
       return null;
     })
     .catch(err => {
@@ -46,9 +49,6 @@ async function init () {
 
 init();
 
-// - Post the weather snapshot, with timestamp, to the weather route.
-//
 // - Get stations snapshot
 //   - Add the timestamp to the station data object.
 // - Post the stations, with the timestamp, to the stations route.
-//

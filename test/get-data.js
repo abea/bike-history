@@ -22,4 +22,6 @@ describe('Query', function() {
 
     expect(result.cod).to.equal(200);
   });
+
+  // If sending weather for a date that hasn't been created, we should get a null result back.
 });
