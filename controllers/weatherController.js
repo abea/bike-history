@@ -21,7 +21,9 @@ exports.saveWeather = async (req, res) => {
   // Check if a document exists for that calendar day.
   const timestamp = req.body.timestamp;
   const dayStamp = timestamp.substring(0, timestamp.indexOf('T'));
+  const hour = (new Date(timestamp)).getHours();
   let data = {};
+
   let weatherDay = await Weather.findOne({
     _id: dayStamp
   });
@@ -30,7 +32,6 @@ exports.saveWeather = async (req, res) => {
   if (!weatherDay) {
     // Make an array with values 1-23
     const hoursInDay = [...Array(24).keys()];
-    const hour = (new Date(timestamp)).getHours();
 
     data._id = dayStamp;
     data.hours = {};
@@ -43,7 +44,7 @@ exports.saveWeather = async (req, res) => {
     await (new Weather(data)).save((err, doc) => {
       if (err) {
         for (const key in err.errors) {
-          console.error(err.errors[key].message);
+          throw Error(err.errors[key].message);
         }
       }
 
@@ -53,8 +54,20 @@ exports.saveWeather = async (req, res) => {
     return;
   }
 
-  // TODO If so, get the hour and update the document with the weather at that hour.
-  res.send(weatherDay);
+  // If so, update the document with the weather at that hour.
+  const field = `hour.${hour}`;
+  const updated = await Weather.updateOne(
+    {
+      _id: dayStamp
+    },
+    {
+      $set: {
+        [field]: req.body.weather
+      }
+    }
+  );
+
+  res.send(updated);
 };
 
 const emptyWeather = {
