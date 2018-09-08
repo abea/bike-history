@@ -2,7 +2,8 @@ const request = require('request-promise');
 require('dotenv').config({ path: `${__dirname}/../variables.env` });
 
 const weatherUrl = `http://api.openweathermap.org/data/2.5/weather?appid=${process.env.WEATHER_KEY}&id=${process.env.WEATHER_CITY_ID}`;
-const bikesUrl = 'https://www.rideindego.com/stations/json';
+// const bikesUrl = 'https://www.rideindego.com/stations/json';
+const bikesTest = `${process.env.ROOT_URL}/api/v1/get/sample-bikes`;
 
 // - Set timestamp
 const timestamp = (new Date()).toISOString();
@@ -24,7 +25,7 @@ function getWeather () {
 
 function getBikes () {
   return request({
-    uri: bikesUrl,
+    uri: bikesTest,
     method: 'GET',
     json: true
   })
