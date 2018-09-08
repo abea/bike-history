@@ -2,6 +2,7 @@ const request = require('request-promise');
 require('dotenv').config({ path: `${__dirname}/../variables.env` });
 
 const weatherUrl = `http://api.openweathermap.org/data/2.5/weather?appid=${process.env.WEATHER_KEY}&id=${process.env.WEATHER_CITY_ID}`;
+const bikesUrl = 'https://www.rideindego.com/stations/json';
 
 // - Set timestamp
 const timestamp = (new Date()).toISOString();
@@ -21,8 +22,23 @@ function getWeather () {
     });
 }
 
+function getBikes () {
+  return request({
+    uri: bikesUrl,
+    method: 'GET',
+    json: true
+  })
+    .then(data => {
+      return data.features;
+    })
+    .catch(err => {
+      return {error: err};
+    });
+}
+
 async function init () {
   const weather = await getWeather();
+  const bikes = await getBikes();
 
   const weatherPostOptions = {
     method: 'POST',
@@ -48,7 +64,3 @@ async function init () {
 }
 
 init();
-
-// - Get stations snapshot
-//   - Add the timestamp to the station data object.
-// - Post the stations, with the timestamp, to the stations route.
