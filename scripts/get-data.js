@@ -51,7 +51,7 @@ async function init () {
   };
 
   // - Post the weather snapshot, with timestamp, to the weather route.
-  request(weatherPostOptions)
+  await request(weatherPostOptions)
     .then(res => {
       if (!res) {
         throw Error('No document returned from weather post request.');
@@ -59,8 +59,31 @@ async function init () {
       return null;
     })
     .catch(err => {
-      console.error('🚫', err.error);
+      console.error('🚫⛈', err.error);
     });
+
+  const bikesPostOptions = {
+    method: 'POST',
+    uri: `${process.env.ROOT_URL}/api/v1/post/bikes`,
+    body: {
+      timestamp,
+      bikes
+    },
+    json: true
+  };
+
+  // - Post the weather snapshot, with timestamp, to the weather route.
+  await request(bikesPostOptions)
+    .then(res => {
+      if (!res) {
+        throw Error('No document returned from bikes post request.');
+      }
+      return null;
+    })
+    .catch(err => {
+      console.error('🚫🚲', err.error);
+    });
+
 }
 
 init();
