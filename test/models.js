@@ -14,7 +14,7 @@ const basicData = {
 describe('Database', function() {
   // create a sandboxed database connection
   before((done) => {
-    mongoose.connect('mongodb://localhost/test', { useNewUrlParser: true });
+    mongoose.connect('mongodb://localhost/models-test', { useNewUrlParser: true });
     const db = mongoose.connection;
 
     db.on('error', (err) => {
