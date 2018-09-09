@@ -2,8 +2,8 @@ const request = require('request-promise');
 require('dotenv').config({ path: `${__dirname}/../variables.env` });
 
 const weatherUrl = `http://api.openweathermap.org/data/2.5/weather?appid=${process.env.WEATHER_KEY}&id=${process.env.WEATHER_CITY_ID}`;
-// const bikesUrl = 'https://www.rideindego.com/stations/json';
-const bikesTest = `${process.env.ROOT_URL}/api/v1/get/sample-bikes`;
+const bikesUrl = 'https://www.rideindego.com/stations/json';
+// const bikesTest = `${process.env.ROOT_URL}/api/v1/get/sample-bikes`;
 
 // - Set timestamp
 const timestamp = (new Date()).toISOString();
@@ -25,7 +25,7 @@ function getWeather () {
 
 function getBikes () {
   return request({
-    uri: bikesTest,
+    uri: bikesUrl,
     method: 'GET',
     json: true
   })
@@ -39,7 +39,7 @@ function getBikes () {
 
 async function init () {
   const weather = await getWeather();
-  const bikes = await getBikes();
+  const stations = await getBikes();
 
   const weatherPostOptions = {
     method: 'POST',
@@ -68,23 +68,23 @@ async function init () {
     uri: `${process.env.ROOT_URL}/api/v1/post/bikes`,
     body: {
       timestamp,
-      bikes
+      stations
     },
     json: true
   };
 
-  // - Post the weather snapshot, with timestamp, to the weather route.
+  // - Post the stations snapshot, with timestamp, to the stations route.
   await request(bikesPostOptions)
     .then(res => {
       if (!res) {
         throw Error('No document returned from bikes post request.');
       }
+      console.log('🚲', res);
       return null;
     })
     .catch(err => {
       console.error('🚫🚲', err.error);
     });
-
 }
 
 init();
