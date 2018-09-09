@@ -49,7 +49,6 @@ describe('Database', function() {
     it('should receive a document with _id back of the date.', async () => {
       let result = {};
       const timestamp = (new Date()).toISOString();
-      // const hour = (new Date(timestamp)).getHours();
       const datestamp = timestamp.substring(0, timestamp.indexOf('T'));
 
       const weatherPostOptions = {
@@ -73,9 +72,31 @@ describe('Database', function() {
       expect(result._id).to.equal(datestamp);
     });
 
-    // it('should have data for the hour when sent.', async () => {
-    //   expect(result.hours[hour].name).to.exist();
-    // });
+    it('should have data for the hour when sent.', async () => {
+      let result = {};
+      const timestamp = (new Date()).toISOString();
+      const hour = (new Date(timestamp)).getHours();
+
+      const weatherPostOptions = {
+        method: 'POST',
+        uri: `${process.env.ROOT_URL}/api/v1/post/weather`,
+        body: {
+          timestamp,
+          weather: sampleWeather
+        },
+        json: true
+      };
+
+      await request(weatherPostOptions)
+        .then(res => {
+          result = res;
+        })
+        .catch(err => {
+          console.error(err.error);
+        });
+
+      expect(result.hours[hour].name).to.not.equal(null);
+    });
   });
 
   // After all tests are finished drop database and close connection
