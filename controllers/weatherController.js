@@ -55,8 +55,11 @@ exports.saveWeather = async (req, res) => {
   }
 
   // If so, update the document with the weather at that hour.
-  const field = `hour.${hour}`;
-  const updated = await Weather.updateOne(
+  const field = `hours.${hour}`;
+
+  // TODO Why is `updated` being set to the old document when
+  // `returnNewDocument: true` is set?
+  const updated = await Weather.findOneAndUpdate(
     {
       _id: dayStamp
     },
@@ -64,6 +67,9 @@ exports.saveWeather = async (req, res) => {
       $set: {
         [field]: req.body.weather
       }
+    },
+    {
+      returnNewDocument: true
     }
   );
 

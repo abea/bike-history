@@ -54,9 +54,10 @@ async function init () {
   // - Post the weather snapshot, with timestamp, to the weather route.
   await request(weatherPostOptions)
     .then(res => {
-      if (!res) {
+      if (!res._id) {
         throw Error('No document returned from weather post request.');
       }
+      console.log('⛈');
       return null;
     })
     .catch(err => {
@@ -77,7 +78,7 @@ async function init () {
   await request(bikesPostOptions)
     .then(res => {
       if (!res) {
-        throw Error('No document returned from bikes post request.');
+        throw Error('No result returned from bikes post request.');
       }
       console.log('🚲', res);
       return null;
