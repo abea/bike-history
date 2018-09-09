@@ -1,7 +1,11 @@
 const mongoose = require('mongoose');
 const request = require('request-promise');
-const {expect} = require('chai');
+const chai = require('chai');
+chai.use(require('chai-match'));
+const expect = chai.expect;
+
 const sampleWeather = require('../sample-data/weather-dump.json');
+const sampleStations = require('../sample-data/indego-dump.json');
 
 require('dotenv').config({ path: `${__dirname}/../variables.env` });
 
@@ -99,6 +103,39 @@ describe('Database', function() {
     });
   });
 
+  describe('Stations Post', function() {
+    it('should receive a report of number of stations updated.', async () => {
+      let result = {};
+      const timestamp = (new Date()).toISOString();
+      const resPattern = /Saved and\/or updated \d* stations/;
+      const bikesPostOptions = {
+        method: 'POST',
+        uri: `${process.env.ROOT_URL}/api/v1/post/bikes`,
+        body: {
+          timestamp,
+          stations: sampleStations.features
+        },
+        json: true
+      };
+
+      await request(bikesPostOptions)
+        .then(res => {
+          result = res;
+        })
+        .catch(err => {
+          result = err;
+        });
+
+      expect(result).to.match(resPattern);
+    }).timeout(20000);
+
+    //   it('should have data on the docs for the hour sent.', async () => {
+    //     // Mongo query for a random doc.
+    //     expect(result.hours[hour].timestamp).to.exist();
+    //   });
+    // });
+  });
+
   // After all tests are finished drop database and close connection
   after(function(done) {
     mongoose.connection.db.dropDatabase(function () {
@@ -107,14 +144,3 @@ describe('Database', function() {
     });
   });
 });
-
-// describe('Stations Post', function() {
-//   it('should receive a report of number of stations updated.', async () => {
-//     expect(typeof result).to.equal('string'); // Or use regex
-//   });
-//
-//   it('should have data on the docs for the hour sent.', async () => {
-//     // Mongo query for a random doc.
-//     expect(result.hours[hour].timestamp).to.exist();
-//   });
-// });

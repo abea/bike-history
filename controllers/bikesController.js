@@ -108,7 +108,7 @@ exports.saveStations = async (req, res) => {
 
   const stationData = await Promise.all(bikePromises);
 
-  res.send(`saved/updated ${stationData.length} stations`);
+  res.send(`Saved and/or updated ${stationData.length} stations`);
 };
 
 const emptyStationDay = {
