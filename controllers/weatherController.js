@@ -11,7 +11,6 @@ exports.prepWeather = (req, res, next) => {
   };
   delete weather.coord;
 
-  // return new weather object (req.body.weather) and timestamp (req.body.timestamp)
   req.body.weather = weather;
 
   next();
