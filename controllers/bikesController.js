@@ -45,9 +45,11 @@ const findStationDay = async function (data) {
 
 const saveStationDay = async function (data) {
   data.hour = (new Date(data.timestamp)).getHours();
+  data.station.timestamp = data.timestamp;
+
   if (data.noDoc) {
     finishedCount++;
-    console.log(`Saving #${finishedCount}, ${data.docId}`);
+    console.log(`Adding #${finishedCount}, ${data.docId}`);
     return saveNew(data);
   } else {
     finishedCount++;
@@ -57,11 +59,12 @@ const saveStationDay = async function (data) {
 };
 
 const saveNew = function (data) {
-  console.log('Making new doc', data.docId);
   const hoursInDay = [...Array(24).keys()];
   const newData = {};
 
   newData._id = data.docId;
+  newData.kioskId = data.station.properties.kioskId;
+  newData.timestamp = (new Date(data.dayStamp)).toISOString();
   newData.hours = {};
 
   for (const hour of hoursInDay) { newData.hours[hour] = emptyStationDay; }
@@ -112,6 +115,7 @@ exports.saveStations = async (req, res) => {
 };
 
 const emptyStationDay = {
+  timestamp: null,
   geometry: {
     coordinates: [null, null]
   },
