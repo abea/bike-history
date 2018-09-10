@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const propertyFields = {
+const stationFields = {
   geometry: {
     type: {
       type: String,
@@ -11,6 +11,13 @@ const propertyFields = {
     }]
   },
   properties: {
+    bikesAvailable: Number,
+    docksAvailable: Number,
+    totalDocks: Number,
+    trikesAvailable: Number,
+    classicBikesAvailable: Number,
+    smartBikesAvailable: Number,
+    electricBikesAvailable: Number,
     addressStreet: String,
     addressCity: String,
     addressState: String,
@@ -36,20 +43,6 @@ const propertyFields = {
     hasGeofence: Boolean
   }
 };
-
-// Doc status status fields
-const statusFields = {
-  timestamp: Date,
-  bikesAvailable: Number,
-  docksAvailable: Number,
-  totalDocks: Number,
-  trikesAvailable: Number,
-  classicBikesAvailable: Number,
-  smartBikesAvailable: Number,
-  electricBikesAvailable: Number
-};
-
-const stationFields = Object.assign(propertyFields.properties, statusFields);
 
 const hoursInDay = [...Array(24).keys()];
 const hoursObject = {};
