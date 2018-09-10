@@ -116,7 +116,6 @@ const emptyStationDay = {
     coordinates: [null, null]
   },
   properties: {
-    timestamp: null,
     bikesAvailable: null,
     docksAvailable: null,
     totalDocks: null,

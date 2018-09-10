@@ -11,7 +11,6 @@ const stationFields = {
     }]
   },
   properties: {
-    timestamp: Date,
     bikesAvailable: Number,
     docksAvailable: Number,
     totalDocks: Number,
