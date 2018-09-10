@@ -3,14 +3,20 @@ const request = require('request-promise');
 const chai = require('chai');
 chai.use(require('chai-match'));
 const expect = chai.expect;
-
+const StationDay = require('../models/StationDay');
+require('../models/Weather');
+require('../models/StationDay');
 const sampleWeather = require('../sample-data/weather-dump.json');
 const sampleStations = require('../sample-data/indego-dump.json');
+const express = require('express');
+const routes = require('../routes/index');
+const bodyParser = require('body-parser');
+const app = express();
+let server;
 
 require('dotenv').config({ path: `${__dirname}/../variables.env` });
 
 const weatherUrl = 'http://api.openweathermap.org/data/2.5/weather';
-// const bikesUrl = 'https://www.rideindego.com/stations/json';
 
 describe('Open Weather', function() {
   it('should receive a response from the weather API with key.', async () => {
@@ -35,7 +41,10 @@ describe('Open Weather', function() {
 describe('Database', function() {
   // create a sandboxed database connection
   before((done) => {
-    mongoose.connect('mongodb://localhost/post-test', { useNewUrlParser: true });
+    app.use(bodyParser.json());
+    app.use('/', routes);
+    app.set('port', process.env.PORT || 7777);
+    mongoose.connect('mongodb://localhost/post_test', { useNewUrlParser: true });
     const db = mongoose.connection;
 
     db.on('error', (err) => {
@@ -45,6 +54,10 @@ describe('Database', function() {
 
     db.once('open', () => {
       console.log('🙆‍ Test database connected!');
+    });
+
+    server = app.listen(app.get('port'), () => {
+      console.log(`Express running on port ${server.address().port}`);
       done();
     });
   });
@@ -127,17 +140,27 @@ describe('Database', function() {
         });
 
       expect(result).to.match(resPattern);
-    }).timeout(20000);
+    }).timeout(120000); // Extra time for 127 saves. Updating will be faster.
 
-    //   it('should have data on the docs for the hour sent.', async () => {
-    //     // Mongo query for a random doc.
-    //     expect(result.hours[hour].timestamp).to.exist();
-    //   });
-    // });
+    it('should have data on the docs for the hour sent.', async () => {
+      const stations = sampleStations.features;
+      // Get a random station index from the dump.
+      const station = stations[Math.floor(Math.random() * stations.length)];
+      const kioskId = station.properties.kioskId;
+      const timestamp = (new Date()).toISOString();
+      const datestamp = timestamp.substring(0, timestamp.indexOf('T'));
+      const hour = (new Date(timestamp)).getHours();
+      const docId = `${kioskId}~${datestamp}`;
+      // Grab random station day document.
+      const saved = await StationDay.findOne({ _id: docId });
+
+      expect(saved.hours[hour].properties.kioskId).to.equal(kioskId);
+    });
   });
 
   // After all tests are finished drop database and close connection
   after(function(done) {
+    server.close();
     mongoose.connection.db.dropDatabase(function () {
       console.log('👋 Test database dropped and disconnected.');
       mongoose.connection.close(done);
