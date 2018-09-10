@@ -9,16 +9,16 @@
 Using MongoDB, Node.js, Express, [Bluebird](https://npmjs.org/package/bluebird), Lodash and the Linux, Node.js and MongoDB hosting of your choice (see below for hosting details including free options), **create a new API server which accumulates data over time and provides access to historical data for both weather and Indego bike availability, supporting the following queries at minimum.** Note that it is sufficient to store data at hourly intervals.
 
 ## Requirements
-- App stores Indego and weather data
-- App downloads fresh Indego and weather data once per hour
-- App provides an API to access Indego and weather data
-- App API supports the following queries at a minimum:
-  - Snapshot of all stations at a specified time (`/api/v1/stations?at=2017-11-01T11:00:00`)
-  - Snapshot of one station at a specific time (`/api/v1/stations/KIOSKIDGOESHERE?at=2017-11-01T11:00:00`)
-  - Snapshots of one station over a range of times  (`/api/v1/stations/KIOSKIDGOESHERE?from=2017-11-01T11:00:00&to=2017-12-01T11:00:00&frequency=daily`)
-- App should have mocha tests built for all requirements
-- App is hosted and accessible publicly
-- Extra credit: Implement Vue front end with data visualization
+- [X] App stores Indego and weather data
+- [ ] App downloads fresh Indego and weather data once per hour
+- [ ] App provides an API to access Indego and weather data
+- [ ] App API supports the following queries at a minimum:
+  - [ ] Snapshot of all stations at a specified time (`/api/v1/stations?at=2017-11-01T11:00:00`)
+  - [ ] Snapshot of one station at a specific time (`/api/v1/stations/KIOSKIDGOESHERE?at=2017-11-01T11:00:00`)
+  - [ ] Snapshots of one station over a range of times  (`/api/v1/stations/KIOSKIDGOESHERE?from=2017-11-01T11:00:00&to=2017-12-01T11:00:00&frequency=daily`)
+- [ ] App should have mocha tests built for all requirements
+- [ ] App is hosted and accessible publicly
+- [ ] Extra credit: Implement Vue front end with data visualization
 
 ### Snapshot of all stations at a specified time
 
@@ -31,8 +31,8 @@ This API should respond as follows, with the actual time of the first snapshot o
 ```javascript
 {
   at: '2017-11-01:T11:00:01',
-  stations: { /* As per the Indego API */ },
-  weather: { /* as per the Open Weather Map API response for Philadelphia */ }
+  weather: { /* as per the Open Weather Map API response for Philadelphia */ },
+  stations: { /* As per the Indego API */ }
 }
 ```
 
@@ -49,8 +49,8 @@ The response should be the first available on or after the given time, and shoul
 ```javascript
 {
   at: '2017-11-01:T11:00:01',
-  station: { /* Data just for this one station as per the Indego API */ },
-  weather: { /* as per the Open Weather Map API response for Philadelphia */ }
+  weather: { /* as per the Open Weather Map API response for Philadelphia */ },
+  station: { /* Data just for this one station as per the Indego API */ }
 }
 ```
 
