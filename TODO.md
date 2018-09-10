@@ -1,0 +1,3 @@
+- [ ] Store the timestamp in each document at the root (first of the day) and in each hour (for each snapshot)
+- [ ] Store the kiosk ID in each stationDay document at the root
+- [ ] Consider abandoning the fancy ID structure
