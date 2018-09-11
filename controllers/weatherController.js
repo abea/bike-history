@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Weather = mongoose.model('Weather');
+const moment = require('moment-timezone');
 
 exports.prepWeather = (req, res, next) => {
   const data = req.body;
@@ -20,8 +21,9 @@ exports.saveWeather = async (req, res) => {
   // Check if a document exists for that calendar day.
   const timestamp = req.body.timestamp;
   req.body.weather.timestamp = timestamp;
-  const dayStamp = timestamp.substring(0, timestamp.indexOf('T'));
-  const hour = (new Date(timestamp)).getHours();
+  const dayStamp = moment(timestamp).tz("America/New_York").format('YYYY-MM-DD');
+  const hour = moment(timestamp).tz("America/New_York").hours();
+
   let data = {};
 
   let weatherDay = await Weather.findOne({
@@ -34,7 +36,9 @@ exports.saveWeather = async (req, res) => {
     const hoursInDay = [...Array(24).keys()];
 
     data._id = dayStamp;
-    data.timestamp = (new Date(dayStamp)).toISOString();
+    // Record the day's timestamp as the ISO String of the first recorded data
+    // that day.
+    data.timestamp = timestamp;
     data.hours = {};
 
     for (const hour of hoursInDay) { data.hours[hour] = emptyWeather; }
