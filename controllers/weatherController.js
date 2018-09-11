@@ -19,6 +19,7 @@ exports.prepWeather = (req, res, next) => {
 exports.saveWeather = async (req, res) => {
   // Check if a document exists for that calendar day.
   const timestamp = req.body.timestamp;
+  req.body.weather.timestamp = timestamp;
   const dayStamp = timestamp.substring(0, timestamp.indexOf('T'));
   const hour = (new Date(timestamp)).getHours();
   let data = {};
@@ -33,6 +34,7 @@ exports.saveWeather = async (req, res) => {
     const hoursInDay = [...Array(24).keys()];
 
     data._id = dayStamp;
+    data.timestamp = (new Date(dayStamp)).toISOString();
     data.hours = {};
 
     for (const hour of hoursInDay) { data.hours[hour] = emptyWeather; }
@@ -76,6 +78,7 @@ exports.saveWeather = async (req, res) => {
 };
 
 const emptyWeather = {
+  timestamp: null,
   geometry: {
     coordinates: [null, null]
   },

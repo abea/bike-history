@@ -1,0 +1,5 @@
+- [X] Store the timestamp in each document at the root (first of the day) and in each hour (for each snapshot)
+- [X] Store the kiosk ID in each stationDay document at the root
+- [ ] Consider abandoning the fancy ID structure
+- [ ] Make sure queried times are converted to UTC for Mongo query.
+- [ ] Convert the UTC ISO string timestamps back to EST for API output.

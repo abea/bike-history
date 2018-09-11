@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const weatherFields = {
+  timestamp: String,
   geometry: {
     type: {
       type: String,
@@ -60,6 +61,7 @@ for (const hour of hoursInDay) { hoursObject[hour] = weatherFields; }
 
 const schemaObj = Object.assign({
   _id: String, // String format of the date in ISO date format.
+  timestamp: String,
   hours: hoursObject
 });
 

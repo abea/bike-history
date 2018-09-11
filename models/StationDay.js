@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const stationFields = {
+  timestamp: String,
   geometry: {
     type: {
       type: String,
@@ -52,6 +53,8 @@ for (const hour of hoursInDay) { hoursObject[hour] = stationFields; }
 
 const schemaObj = Object.assign({
   _id: String,
+  timestamp: String,
+  kioskId: Number,
   hours: hoursObject
 });
 
