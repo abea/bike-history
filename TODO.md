@@ -1,5 +1,8 @@
 - [X] Store the timestamp in each document at the root (first of the day) and in each hour (for each snapshot)
 - [X] Store the kiosk ID in each stationDay document at the root
 - [ ] Consider abandoning the fancy ID structure
+  - Now is the only use for daystamp(?)
+- [X] Get timestamps in EST
 - [ ] Make sure queried times are converted to UTC for Mongo query.
 - [ ] Convert the UTC ISO string timestamps back to EST for API output.
+- [ ] Install heroku scheduler for regular task running https://devcenter.heroku.com/articles/scheduler

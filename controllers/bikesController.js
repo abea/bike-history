@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const StationDay = mongoose.model('StationDay');
+const moment = require('moment-timezone');
 let finishedCount = 0;
 
 const processStation = function (data) {
@@ -44,7 +45,7 @@ const findStationDay = async function (data) {
 };
 
 const saveStationDay = async function (data) {
-  data.hour = (new Date(data.timestamp)).getHours();
+  data.hour = moment(data.timestamp).tz("America/New_York").hours();
   data.station.timestamp = data.timestamp;
 
   if (data.noDoc) {
@@ -59,14 +60,16 @@ const saveStationDay = async function (data) {
 };
 
 const saveNew = function (data) {
-  const hoursInDay = [...Array(24).keys()];
   const newData = {};
 
   newData._id = data.docId;
   newData.kioskId = data.station.properties.kioskId;
-  newData.timestamp = (new Date(data.dayStamp)).toISOString();
+  // Record the day's timestamp as the ISO String of the first recorded data
+  // that day.
+  newData.timestamp = data.timestamp;
   newData.hours = {};
 
+  const hoursInDay = [...Array(24).keys()];
   for (const hour of hoursInDay) { newData.hours[hour] = emptyStationDay; }
 
   newData.hours[data.hour] = data.station;
@@ -96,7 +99,7 @@ const updateOld = function (data) {
 exports.saveStations = async (req, res) => {
   const stations = req.body.stations;
   const timestamp = req.body.timestamp;
-  const dayStamp = timestamp.substring(0, timestamp.indexOf('T'));
+  const dayStamp = moment(timestamp).tz("America/New_York").format('YYYY-MM-DD');
   finishedCount = 0;
 
   const bikePromises = await stations.map(async station => {
