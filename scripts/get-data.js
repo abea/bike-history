@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const request = require('request-promise');
 require('dotenv').config({ path: `${__dirname}/../variables.env` });
 
@@ -38,14 +39,12 @@ function getBikes () {
 }
 
 function checkBikes () {
+  console.log('checkBikes');
   return request({
     uri: `${process.env.ROOT_URL}/api/v1/get/bike-processing`,
     method: 'GET',
     json: true
   })
-    .then(res => {
-      return res;
-    })
     .catch(err => {
       console.error('🤸‍', err);
       return err;
@@ -88,7 +87,7 @@ async function init () {
     },
     json: true
   };
-  let bikesFinished = false;
+  // let bikesFinished = false;
   // - Post the stations snapshot, with timestamp, to the stations route.
   await request(bikesPostOptions)
     .then(res => {
@@ -97,41 +96,40 @@ async function init () {
       }
       console.log('🚲', res);
 
-      if (res.status === 201) {
-        bikesFinished = true;
-      }
-
-      return bikesFinished;
+      return res;
     })
-    .then(async finished => {
-      let checks = 0;
-      let status = {};
-
-      const checkAgain = async function() {
-        console.log('checking', checks);
-        checks++;
-        status = await checkBikes();
-
+    .then(async status => {
+      return new Promise((resolve, reject) => {
         if (status.status === 201) {
-          finished = true;
-          console.log('🚲', status.message);
-          return null;
-        } else {
-          console.log('🎿', status);
+          return resolve(status);
         }
 
-        if (!finished && checks < 24) {
-          setTimeout(async () => {
-            await checkAgain();
-          }, 5000);
-        }
-      };
+        let checks = 0;
 
-      await checkAgain();
+        const checkIt = function() {
+          console.log('checkIt');
+          checks++;
+          console.log('checking', checks);
+          checkBikes()
+            .then(res => {
+              console.log('checkBikes THEN');
+              if (res.status === 201 || checks > 24) {
+                console.log('check finished', checks);
+                status = res;
+                resolve(status);
+              } else {
+                console.log('🚲', res);
+                setTimeout(checkIt, 5000);
+              }
+            })
+            .catch(err => reject(err));
+        };
 
-      if (!finished) {
-        throw Error('Bike post timed out.');
-      }
+        checkIt();
+      });
+    })
+    .then(status => {
+      console.log('🏁', status);
     })
     .catch(err => {
       err = err.error ? err.error : err;
