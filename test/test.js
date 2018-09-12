@@ -12,6 +12,7 @@ const express = require('express');
 const routes = require('../routes/index');
 const bodyParser = require('body-parser');
 const app = express();
+const moment = require('moment-timezone');
 let server;
 
 require('dotenv').config({ path: `${__dirname}/../variables.env` });
@@ -44,7 +45,9 @@ describe('Database', function() {
     app.use(bodyParser.json());
     app.use('/', routes);
     app.set('port', process.env.PORT || 7777);
-    mongoose.connect('mongodb://localhost/post_test', { useNewUrlParser: true });
+    mongoose.connect('mongodb://localhost/post_test', {
+      useNewUrlParser: true
+    });
     const db = mongoose.connection;
 
     db.on('error', (err) => {
@@ -66,7 +69,7 @@ describe('Database', function() {
     it('should receive a document with _id back of the date.', async () => {
       let result = {};
       const timestamp = (new Date()).toISOString();
-      const datestamp = timestamp.substring(0, timestamp.indexOf('T'));
+      const datestamp = moment(timestamp).tz("America/New_York").format('YYYY-MM-DD');
 
       const weatherPostOptions = {
         method: 'POST',
@@ -81,6 +84,8 @@ describe('Database', function() {
       await request(weatherPostOptions)
         .then(res => {
           result = res;
+          console.log(res._id);
+          console.log(datestamp);
         })
         .catch(err => {
           console.error(err.error);
@@ -148,7 +153,7 @@ describe('Database', function() {
       const station = stations[Math.floor(Math.random() * stations.length)];
       const kioskId = station.properties.kioskId;
       const timestamp = (new Date()).toISOString();
-      const datestamp = timestamp.substring(0, timestamp.indexOf('T'));
+      const datestamp = moment(timestamp).tz("America/New_York").format('YYYY-MM-DD');
       const hour = (new Date(timestamp)).getHours();
       const docId = `${kioskId}~${datestamp}`;
       // Grab random station day document.
