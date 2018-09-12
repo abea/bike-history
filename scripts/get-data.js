@@ -37,6 +37,21 @@ function getBikes () {
     });
 }
 
+function checkBikes () {
+  return request({
+    uri: `${process.env.ROOT_URL}/api/v1/get/bike-processing`,
+    method: 'GET',
+    json: true
+  })
+    .then(res => {
+      return res;
+    })
+    .catch(err => {
+      console.error('🤸‍', err);
+      return err;
+    });
+}
+
 async function init () {
   const weather = await getWeather();
   const stations = await getBikes();
@@ -73,7 +88,7 @@ async function init () {
     },
     json: true
   };
-
+  let bikesFinished = false;
   // - Post the stations snapshot, with timestamp, to the stations route.
   await request(bikesPostOptions)
     .then(res => {
@@ -81,10 +96,46 @@ async function init () {
         throw Error('No result returned from bikes post request.');
       }
       console.log('🚲', res);
-      return null;
+
+      if (res.status === 201) {
+        bikesFinished = true;
+      }
+
+      return bikesFinished;
+    })
+    .then(async finished => {
+      let checks = 0;
+      let status = {};
+
+      const checkAgain = async function() {
+        console.log('checking', checks);
+        checks++;
+        status = await checkBikes();
+
+        if (status.status === 201) {
+          finished = true;
+          console.log('🚲', status.message);
+          return null;
+        } else {
+          console.log('🎿', status);
+        }
+
+        if (!finished && checks < 24) {
+          setTimeout(async () => {
+            await checkAgain();
+          }, 5000);
+        }
+      };
+
+      await checkAgain();
+
+      if (!finished) {
+        throw Error('Bike post timed out.');
+      }
     })
     .catch(err => {
-      console.error('🚫🚲', err.error);
+      err = err.error ? err.error : err;
+      console.error('🚫🚲', err);
     });
 }
 

@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const StationDay = mongoose.model('StationDay');
 const moment = require('moment-timezone');
+let processing = false;
+let resMessage = 'Stations saving...';
 let finishedCount = 0;
 
 const processStation = function (data) {
@@ -27,6 +29,7 @@ const processStation = function (data) {
     })
     .then(saveStationDay)
     .catch(err => {
+      processing = false;
       console.error('⚙️', err);
     });
 };
@@ -100,9 +103,15 @@ exports.saveStations = async (req, res) => {
   const stations = req.body.stations;
   const timestamp = req.body.timestamp;
   const dayStamp = moment(timestamp).tz("America/New_York").format('YYYY-MM-DD');
+  processing = true;
   finishedCount = 0;
 
-  const bikePromises = await stations.map(async station => {
+  res.status(202).send({
+    status: 202,
+    message: resMessage
+  });
+
+  const bikePromises = await stations.map(async (station, index) => {
     const stationPromise = await processStation({
       station,
       dayStamp,
@@ -114,7 +123,22 @@ exports.saveStations = async (req, res) => {
 
   const stationData = await Promise.all(bikePromises);
 
-  res.send(`Saved and/or updated ${stationData.length} stations`);
+  processing = false;
+  resMessage = `Saved and/or updated ${stationData.length} stations`;
+};
+
+exports.getStatus = (req, res) => {
+  if (processing) {
+    res.status(202).send({
+      status: 202,
+      message: resMessage
+    });
+  } else {
+    res.status(201).send({
+      status: 201,
+      message: resMessage
+    });
+  }
 };
 
 const emptyStationDay = {
