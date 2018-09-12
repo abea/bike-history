@@ -88,4 +88,4 @@ async function init () {
     });
 }
 
-init();
+module.exports = init;
