@@ -8,7 +8,7 @@
     "start": "node start",
     "dev": "nodemon start --exec 'npm run pretest && node'",
     "test": "mocha",
-    "get-data": "node ./scripts/get-data.js"
+    "updater": "node ./bin/updater"
   },
   "repository": {
     "type": "git",
