@@ -47,6 +47,14 @@ function checkBikes () {
     timeout: 4000
   })
     .catch(err => {
+      if (err.error.code === 'ESOCKETTIMEDOUT') {
+        console.log('checkBikes request timeout.');
+        return {
+          status: 202,
+          message: 'checkBikes request timeout. Check again.'
+        };
+      }
+
       console.error('🤸‍', err);
       return err;
     });
@@ -120,7 +128,7 @@ async function init () {
                 resolve(status);
               } else {
                 console.log('🚲', res);
-                setTimeout(checkIt, 30000);
+                setTimeout(checkIt, 10000);
               }
             })
             .catch(err => reject(err));
