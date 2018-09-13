@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 const StationDay = mongoose.model('StationDay');
+const Cache = mongoose.model('Cache');
+const uuid = require('uuid/v4');
 const moment = require('moment-timezone');
-let processing = false;
-let resMessage = 'Stations saving...';
-let finishedCount = 0;
+let savingMessage = 'Stations saving...';
+let finishedCount = 0; // TODO: Remove this and the logs once in production.
 
 const processStation = function (data) {
   const station = data.station;
@@ -29,8 +30,6 @@ const processStation = function (data) {
     })
     .then(saveStationDay)
     .catch(err => {
-      processing = false;
-
       return err;
     });
 };
@@ -118,12 +117,15 @@ exports.saveStations = async (req, res) => {
   const stations = req.body.stations;
   const timestamp = req.body.timestamp;
   const dayStamp = moment(timestamp).tz("America/New_York").format('YYYY-MM-DD');
-  processing = true;
+  const cache = await (new Cache({ _id: uuid() })).save();
+  const cacheId = cache._id;
+
   finishedCount = 0;
 
   res.status(202).send({
     status: 202,
-    message: resMessage
+    message: savingMessage,
+    cacheId
   });
 
   const bikePromises = await collectPromises({
@@ -134,22 +136,29 @@ exports.saveStations = async (req, res) => {
 
   const stationData = await Promise.all(bikePromises);
 
-  processing = false;
-  resMessage = `Saved and/or updated ${stationData.length} stations`;
+  await Cache.findOneAndUpdate(
+    { _id: cacheId },
+    {
+      $set: { count: stationData.length }
+    }
+  );
 };
 
-exports.getStatus = (req, res) => {
-  if (processing) {
-    res.status(202).send({
-      status: 202,
-      message: resMessage
-    });
-  } else {
+exports.getStatus = async (req, res) => {
+  const cacheId = req.params.cacheId;
+
+  const completed = await Cache.findOne({_id: cacheId});
+
+  if (completed.count) {
     res.status(201).send({
       status: 201,
-      message: resMessage
+      message: `Saved and/or updated ${completed.count} stations`
     });
-    resMessage = 'Stations saving...';
+  } else {
+    res.status(202).send({
+      status: 202,
+      message: savingMessage
+    });
   }
 };
 

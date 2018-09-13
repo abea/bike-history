@@ -37,9 +37,9 @@ function getBikes () {
     });
 }
 
-function checkBikes () {
+function checkBikes (id) {
   return request({
-    uri: `${process.env.ROOT_URL}/api/v1/get/bike-processing`,
+    uri: `${process.env.ROOT_URL}/api/v1/get/bike-processing/${id}`,
     method: 'GET',
     json: true,
     timeout: 4000
@@ -92,7 +92,8 @@ async function init () {
     },
     json: true
   };
-  // let bikesFinished = false;
+
+  let statusId;
   // - Post the stations snapshot, with timestamp, to the stations route.
   await request(bikesPostOptions)
     .then(res => {
@@ -104,6 +105,8 @@ async function init () {
       return res;
     })
     .then(async status => {
+      statusId = status.cacheId;
+
       return new Promise((resolve, reject) => {
         if (status.status === 201) {
           return resolve(status);
@@ -114,7 +117,7 @@ async function init () {
         const checkIt = function() {
           checks++;
 
-          checkBikes()
+          checkBikes(statusId)
             .then(res => {
               if (res.status === 201) {
                 resolve(res);
@@ -136,6 +139,7 @@ async function init () {
       });
     })
     .then(status => {
+      // TODO: Remove this step or simplify logs once in production.
       if (status.status === 408) {
         console.error('🚫', status.message);
       } else {
