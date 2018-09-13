@@ -27,7 +27,6 @@
     "moment-timezone": "^0.5.21",
     "mongoose": "^5.2.10",
     "mongoose-mongodb-errors": "0.0.2",
-    "newrelic": "^4.8.1",
     "request": "^2.88.0",
     "request-promise": "^4.2.2"
   },
