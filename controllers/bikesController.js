@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 const mongoose = require('mongoose');
 const StationDay = mongoose.model('StationDay');
 const moment = require('moment-timezone');
@@ -31,7 +30,8 @@ const processStation = function (data) {
     .then(saveStationDay)
     .catch(err => {
       processing = false;
-      console.error('⚙️', err);
+
+      return err;
     });
 };
 
@@ -54,11 +54,11 @@ const saveStationDay = async function (data) {
 
   if (data.noDoc) {
     finishedCount++;
-    console.log(`Adding #${finishedCount}, ${data.docId}, ${processing}`);
+    console.info(`Adding #${finishedCount}, ${data.docId}`);
     return saveNew(data);
   } else {
     finishedCount++;
-    console.log(`Updating #${finishedCount}, ${data.docId}, ${processing}`);
+    console.info(`Updating #${finishedCount}, ${data.docId}`);
     return updateOld(data);
   }
 };
@@ -119,7 +119,6 @@ exports.saveStations = async (req, res) => {
   const timestamp = req.body.timestamp;
   const dayStamp = moment(timestamp).tz("America/New_York").format('YYYY-MM-DD');
   processing = true;
-  console.log('processing = true;');
   finishedCount = 0;
 
   res.status(202).send({
@@ -136,22 +135,21 @@ exports.saveStations = async (req, res) => {
   const stationData = await Promise.all(bikePromises);
 
   processing = false;
-  console.log('processing = false;');
   resMessage = `Saved and/or updated ${stationData.length} stations`;
 };
 
 exports.getStatus = (req, res) => {
-  console.log('getStatus');
   if (processing) {
-    return res.status(202).send({
+    res.status(202).send({
       status: 202,
       message: resMessage
     });
   } else {
-    return res.status(201).send({
+    res.status(201).send({
       status: 201,
       message: resMessage
     });
+    resMessage = 'Stations saving...';
   }
 };
 

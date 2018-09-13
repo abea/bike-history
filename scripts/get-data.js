@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 const request = require('request-promise');
 require('dotenv').config({ path: `${__dirname}/../variables.env` });
 
@@ -39,7 +38,6 @@ function getBikes () {
 }
 
 function checkBikes () {
-  console.log('checkBikes');
   return request({
     uri: `${process.env.ROOT_URL}/api/v1/get/bike-processing`,
     method: 'GET',
@@ -48,14 +46,12 @@ function checkBikes () {
   })
     .catch(err => {
       if (err.error.code === 'ESOCKETTIMEDOUT') {
-        console.log('checkBikes request timeout.');
         return {
           status: 202,
           message: 'checkBikes request timeout. Check again.'
         };
       }
 
-      console.error('🤸‍', err);
       return err;
     });
 }
@@ -80,7 +76,7 @@ async function init () {
       if (!res._id) {
         throw Error('No document returned from weather post request.');
       }
-      console.log('⛈');
+
       return null;
     })
     .catch(err => {
@@ -103,7 +99,7 @@ async function init () {
       if (!res) {
         throw Error('No result returned from bikes post request.');
       }
-      console.log('🚲', res);
+      console.info('🚲', res.message);
 
       return res;
     })
@@ -116,18 +112,20 @@ async function init () {
         let checks = 0;
 
         const checkIt = function() {
-          console.log('checkIt');
           checks++;
-          console.log('checking', checks);
+
           checkBikes()
             .then(res => {
-              console.log('checkBikes THEN');
-              if (res.status === 201 || checks > 24) {
-                console.log('check finished', checks);
-                status = res;
+              if (res.status === 201) {
+                resolve(res);
+              } else if (checks > 15) {
+                status = {
+                  status: 408,
+                  message: 'Station processing timeout.'
+                };
                 resolve(status);
               } else {
-                console.log('🚲', res);
+                console.info('🚲', res.message);
                 setTimeout(checkIt, 10000);
               }
             })
@@ -138,7 +136,11 @@ async function init () {
       });
     })
     .then(status => {
-      console.log('🏁', status);
+      if (status.status === 408) {
+        console.error('🚫', status.message);
+      } else {
+        console.info('🏁', status.message);
+      }
     })
     .catch(err => {
       err = err.error ? err.error : err;
