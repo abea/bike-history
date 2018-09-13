@@ -100,6 +100,20 @@ const updateOld = function (data) {
   );
 };
 
+const collectPromises = data => {
+  return new Promise((resolve, reject) => {
+    const promises = data.array.map((station, index) => {
+      return processStation({
+        station,
+        dayStamp: data.dayStamp,
+        timestamp: data.timestamp
+      });
+    });
+
+    resolve(promises);
+  });
+};
+
 exports.saveStations = async (req, res) => {
   const stations = req.body.stations;
   const timestamp = req.body.timestamp;
@@ -113,14 +127,10 @@ exports.saveStations = async (req, res) => {
     message: resMessage
   });
 
-  const bikePromises = await stations.map(async (station, index) => {
-    const stationPromise = await processStation({
-      station,
-      dayStamp,
-      timestamp
-    });
-
-    return stationPromise;
+  const bikePromises = await collectPromises({
+    array: stations,
+    dayStamp,
+    timestamp
   });
 
   const stationData = await Promise.all(bikePromises);
