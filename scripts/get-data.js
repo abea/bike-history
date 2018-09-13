@@ -119,7 +119,7 @@ async function init () {
                 resolve(status);
               } else {
                 console.log('🚲', res);
-                setTimeout(checkIt, 5000);
+                setTimeout(checkIt, 30000);
               }
             })
             .catch(err => reject(err));
