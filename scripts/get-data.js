@@ -43,7 +43,8 @@ function checkBikes () {
   return request({
     uri: `${process.env.ROOT_URL}/api/v1/get/bike-processing`,
     method: 'GET',
-    json: true
+    json: true,
+    timeout: 4000
   })
     .catch(err => {
       console.error('🤸‍', err);
