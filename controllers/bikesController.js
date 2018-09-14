@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 const StationDay = mongoose.model('StationDay');
+const Cache = mongoose.model('Cache');
+const uuid = require('uuid/v4');
 const moment = require('moment-timezone');
-let finishedCount = 0;
+let savingMessage = 'Stations saving...';
+let finishedCount = 0; // TODO: Remove this and the logs once in production.
 
 const processStation = function (data) {
   const station = data.station;
@@ -27,7 +30,7 @@ const processStation = function (data) {
     })
     .then(saveStationDay)
     .catch(err => {
-      console.error('⚙️', err);
+      return err;
     });
 };
 
@@ -50,11 +53,11 @@ const saveStationDay = async function (data) {
 
   if (data.noDoc) {
     finishedCount++;
-    console.log(`Adding #${finishedCount}, ${data.docId}`);
+    console.info(`Adding #${finishedCount}, ${data.docId}`);
     return saveNew(data);
   } else {
     finishedCount++;
-    console.log(`Updating #${finishedCount}, ${data.docId}`);
+    console.info(`Updating #${finishedCount}, ${data.docId}`);
     return updateOld(data);
   }
 };
@@ -96,25 +99,67 @@ const updateOld = function (data) {
   );
 };
 
+const collectPromises = data => {
+  return new Promise((resolve, reject) => {
+    const promises = data.array.map((station, index) => {
+      return processStation({
+        station,
+        dayStamp: data.dayStamp,
+        timestamp: data.timestamp
+      });
+    });
+
+    resolve(promises);
+  });
+};
+
 exports.saveStations = async (req, res) => {
   const stations = req.body.stations;
   const timestamp = req.body.timestamp;
   const dayStamp = moment(timestamp).tz("America/New_York").format('YYYY-MM-DD');
+  const cache = await (new Cache({ _id: uuid() })).save();
+  const cacheId = cache._id;
+
   finishedCount = 0;
 
-  const bikePromises = await stations.map(async station => {
-    const stationPromise = await processStation({
-      station,
-      dayStamp,
-      timestamp
-    });
+  res.status(202).send({
+    status: 202,
+    message: savingMessage,
+    cacheId
+  });
 
-    return stationPromise;
+  const bikePromises = await collectPromises({
+    array: stations,
+    dayStamp,
+    timestamp
   });
 
   const stationData = await Promise.all(bikePromises);
 
-  res.send(`Saved and/or updated ${stationData.length} stations`);
+  await Cache.findOneAndUpdate(
+    { _id: cacheId },
+    {
+      $set: { count: stationData.length }
+    }
+  );
+};
+
+exports.getStatus = async (req, res) => {
+  const cacheId = req.params.cacheId;
+
+  const completed = await Cache.findOne({_id: cacheId});
+
+  if (completed.count) {
+    res.status(201).send({
+      status: 201,
+      message: `Saved and/or updated ${completed.count} stations`
+    });
+  } else {
+    res.status(202).send({
+      status: 202,
+      message: savingMessage
+    });
+  }
 };
 
 const emptyStationDay = {

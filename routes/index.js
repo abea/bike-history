@@ -18,6 +18,10 @@ router.post('/api/v1/post/bikes',
   catchErrors(bikesController.saveStations)
 );
 
+router.get('/api/v1/get/bike-processing/:cacheId',
+  bikesController.getStatus
+);
+
 router.get('/api/v1/get/sample-bikes',
   (req, res) => {
     res.send(indegoDump);

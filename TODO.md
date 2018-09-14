@@ -3,6 +3,7 @@
 - [ ] Consider abandoning the fancy ID structure
   - Now is the only use for daystamp(?)
 - [X] Get timestamps in EST
+- [ ] Update tests for status status check requests.
 - [ ] Make sure queried times are converted to UTC for Mongo query.
 - [ ] Convert the UTC ISO string timestamps back to EST for API output.
 - [ ] Install heroku scheduler for regular task running https://devcenter.heroku.com/articles/scheduler

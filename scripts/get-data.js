@@ -37,6 +37,25 @@ function getBikes () {
     });
 }
 
+function checkBikes (id) {
+  return request({
+    uri: `${process.env.ROOT_URL}/api/v1/get/bike-processing/${id}`,
+    method: 'GET',
+    json: true,
+    timeout: 4000
+  })
+    .catch(err => {
+      if (err.error.code === 'ESOCKETTIMEDOUT') {
+        return {
+          status: 202,
+          message: 'checkBikes request timeout. Check again.'
+        };
+      }
+
+      return err;
+    });
+}
+
 async function init () {
   const weather = await getWeather();
   const stations = await getBikes();
@@ -57,7 +76,7 @@ async function init () {
       if (!res._id) {
         throw Error('No document returned from weather post request.');
       }
-      console.log('⛈');
+
       return null;
     })
     .catch(err => {
@@ -74,17 +93,62 @@ async function init () {
     json: true
   };
 
+  let statusId;
   // - Post the stations snapshot, with timestamp, to the stations route.
   await request(bikesPostOptions)
     .then(res => {
       if (!res) {
         throw Error('No result returned from bikes post request.');
       }
-      console.log('🚲', res);
-      return null;
+      console.info('🚲', res.message);
+
+      return res;
+    })
+    .then(async status => {
+      statusId = status.cacheId;
+
+      return new Promise((resolve, reject) => {
+        if (status.status === 201) {
+          return resolve(status);
+        }
+
+        let checks = 0;
+
+        const checkIt = function() {
+          checks++;
+
+          checkBikes(statusId)
+            .then(res => {
+              if (res.status === 201) {
+                resolve(res);
+              } else if (checks > 15) {
+                status = {
+                  status: 408,
+                  message: 'Station processing timeout.'
+                };
+                resolve(status);
+              } else {
+                console.info('🚲', res.message);
+                setTimeout(checkIt, 10000);
+              }
+            })
+            .catch(err => reject(err));
+        };
+
+        checkIt();
+      });
+    })
+    .then(status => {
+      // TODO: Remove this step or simplify logs once in production.
+      if (status.status === 408) {
+        console.error('🚫', status.message);
+      } else {
+        console.info('🏁', status.message);
+      }
     })
     .catch(err => {
-      console.error('🚫🚲', err.error);
+      err = err.error ? err.error : err;
+      console.error('🚫🚲', err);
     });
 }
 
