@@ -5,7 +5,7 @@ chai.use(require('chai-match'));
 const expect = chai.expect;
 const StationDay = require('../models/StationDay');
 require('../models/Weather');
-require('../models/StationDay');
+const Cache = require('../models/Cache');
 const sampleWeather = require('../sample-data/weather-dump.json');
 const sampleStations = require('../sample-data/indego-dump.json');
 const express = require('express');
@@ -121,31 +121,28 @@ describe('Database', function() {
     });
   });
 
-  describe('Stations Post', function() {
-    it('should receive a report of number of stations updated.', async () => {
-      let result = {};
-      const timestamp = (new Date()).toISOString();
+  describe('Cache route', function() {
+    it('should receive a report of number of stations updated if complete', async () => {
       const resPattern = /Saved and\/or updated \d* stations/;
-      const bikesPostOptions = {
-        method: 'POST',
-        uri: `${process.env.ROOT_URL}/api/v1/post/bikes`,
-        body: {
-          timestamp,
-          stations: sampleStations.features
-        },
+      function getRandomInt(max) {
+        return Math.floor(Math.random() * Math.floor(max));
+      };
+      let random = getRandomInt(10000000000).toString();
+
+      await (new Cache({
+        _id: random,
+        count: 42
+      })).save();
+
+      const cacheCheckOptions = {
+        uri: `${process.env.ROOT_URL}/api/v1/get/bike-processing/${random}`,
+        method: 'GET',
         json: true
       };
 
-      await request(bikesPostOptions)
-        .then(res => {
-          result = res;
-        })
-        .catch(err => {
-          result = err;
-        });
-
-      expect(result).to.match(resPattern);
-    }).timeout(120000); // Extra time for 127 saves. Updating will be faster.
+      const cacheCheck = await request(cacheCheckOptions);
+      expect(cacheCheck.message).to.match(resPattern);
+    });
 
     it('should have data on the docs for the hour sent.', async () => {
       const stations = sampleStations.features;
