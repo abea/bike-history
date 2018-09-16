@@ -83,15 +83,33 @@ exports.saveWeather = async (req, res) => {
 
 exports.returnWeather = async (req, res, next) => {
   let data = {};
-  if (req.query.at) {
-    const query = dateAndHourFrom(req.query.at);
-    query.timestamp = req.query.at;
+  const at = req.query.at;
+  const from = req.query.from;
+  const to = req.query.to;
+  if (at) {
+    const query = {
+      timestamp: at,
+      date: dateFromTimestamp(at),
+      hour: hourFromTimestamp(at)
+    };
 
     data = await getWeatherAt(query);
     req.weather = data.weather;
     req.at = data.timestamp;
-  } else if (req.query.from && req.query.to) {
+  } else if (from && to && (to > from)) {
+    const fromDate = dateFromTimestamp(from);
+    const toDate = dateFromTimestamp(to);
 
+    const weatherDays = await Weather.find({
+      $and: [
+        {timestamp: {$gte: fromDate}},
+        {timestamp: {$lte: toDate}}
+      ]
+    });
+
+    data = weatherDays;
+    // Get all the documents within the timestamps. Returned: array of documents with hours objects.
+    // Identify hours to get in each day. `forEach` over the returned docs and push each weather into an object with timestamp into an array to add to req.
   } else {
     // TODO: Return a response code indicating poorly formed request.
   }
@@ -99,12 +117,8 @@ exports.returnWeather = async (req, res, next) => {
   res.json(data);
 };
 
-function dateAndHourFrom (time) {
-  const date = time.substring(0, time.indexOf('T'));
-  const hour = (new Date(time)).getHours();
-
-  return { date, hour };
-}
+function dateFromTimestamp (time) { return time.substring(0, time.indexOf('T')); }
+function hourFromTimestamp (time) { return (new Date(time)).getHours(); }
 
 async function getWeatherAt (q) {
   const hourProp = `hours.${q.hour}`;
