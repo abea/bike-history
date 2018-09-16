@@ -10,7 +10,7 @@ Using MongoDB, Node.js, Express, [Bluebird](https://npmjs.org/package/bluebird),
 
 ## Requirements
 - [X] App stores Indego and weather data
-- [ ] App downloads fresh Indego and weather data once per hour
+- [X] App downloads fresh Indego and weather data once per hour
 - [ ] App provides an API to access Indego and weather data
 - [ ] App API supports the following queries at a minimum:
   - [ ] Snapshot of all stations at a specified time (`/api/v1/stations?at=2017-11-01T11:00:00`)
