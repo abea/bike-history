@@ -113,10 +113,14 @@ exports.returnWeather = async (req, res, next) => {
 
     req.weathers = pullSnapshots(weatherDays, {fromTime, toTime});
   } else {
-    // TODO: Return a response code indicating poorly formed request.
+    req.errors = req.errors || [];
+    req.errors.push({
+      code: 422,
+      message: 'Weather query invalid. Check the "at" or "from"/"to" query strings.'
+    });
   }
 
-  res.json(data || req.weathers);
+  res.json(req.weathers || data);
 };
 
 function estToUtc(time) {
