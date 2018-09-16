@@ -89,6 +89,10 @@ exports.returnWeather = async (req, res, next) => {
 
     data = await getWeatherAt(query);
     req.weather = data;
+  } else if (req.query.from && req.query.to) {
+
+  } else {
+    // TODO: Return a response code indicating poorly formed request.
   }
 
   res.json(data);
