@@ -70,6 +70,7 @@ const saveNew = function (data) {
   // Record the day's timestamp as the ISO String of the first recorded data
   // that day.
   newData.timestamp = data.timestamp;
+  newData.updatedAt = data.timestamp;
   newData.hours = {};
 
   const hoursInDay = [...Array(24).keys()];
@@ -90,7 +91,8 @@ const updateOld = function (data) {
     },
     {
       $set: {
-        [field]: data.station
+        [field]: data.station,
+        updatedAt: data.timestamp
       }
     },
     {

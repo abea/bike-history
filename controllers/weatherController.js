@@ -39,6 +39,7 @@ exports.saveWeather = async (req, res) => {
     // Record the day's timestamp as the ISO String of the first recorded data
     // that day.
     data.timestamp = timestamp;
+    data.updatedAt = timestamp;
     data.hours = {};
 
     for (const hour of hoursInDay) { data.hours[hour] = emptyWeather; }
@@ -70,7 +71,8 @@ exports.saveWeather = async (req, res) => {
     },
     {
       $set: {
-        [field]: req.body.weather
+        [field]: req.body.weather,
+        updatedAt: timestamp
       }
     },
     {
@@ -86,6 +88,7 @@ exports.returnWeather = async (req, res, next) => {
   const at = req.query.at;
   const from = req.query.from;
   const to = req.query.to;
+
   if (at) {
     const query = {
       timestamp: at,
@@ -97,25 +100,28 @@ exports.returnWeather = async (req, res, next) => {
     req.weather = data.weather;
     req.at = data.timestamp;
   } else if (from && to && (to > from)) {
-    const fromDate = dateFromTimestamp(from);
-    const toDate = dateFromTimestamp(to);
+    const fromTime = estToUtc(from);
+    const toTime = estToUtc(to);
 
+    // Get documents it's possible we might need.
     const weatherDays = await Weather.find({
       $and: [
-        {timestamp: {$gte: fromDate}},
-        {timestamp: {$lte: toDate}}
+        {updatedAt: {$gte: fromTime}},
+        {timestamp: {$lte: toTime}}
       ]
     });
 
-    data = weatherDays;
-    // Get all the documents within the timestamps. Returned: array of documents with hours objects.
-    // Identify hours to get in each day. `forEach` over the returned docs and push each weather into an object with timestamp into an array to add to req.
+    req.weathers = pullSnapshots(weatherDays, {fromTime, toTime});
   } else {
     // TODO: Return a response code indicating poorly formed request.
   }
 
-  res.json(data);
+  res.json(data || req.weathers);
 };
+
+function estToUtc(time) {
+  return moment.tz(time, 'America/New_York').toISOString();
+}
 
 function dateFromTimestamp (time) { return time.substring(0, time.indexOf('T')); }
 function hourFromTimestamp (time) { return (new Date(time)).getHours(); }
@@ -131,6 +137,27 @@ async function getWeatherAt (q) {
   delete weather.timestamp; // Not from the original snapshot.
 
   return {weather, timestamp};
+}
+
+function pullSnapshots(data, options) {
+  const hours = {};
+
+  data.forEach(day => {
+    const keys = Object.keys(day.hours);
+    // Skip if the day has no hours data.
+    if (keys.length === 0) { return; }
+
+    keys.forEach(hour => {
+      const time = day.hours[hour].timestamp;
+      // Skip if there's no data or if the hour is outside the query.
+      if (!time || time > options.toTime || time < options.fromTime) { return; }
+
+      hours[time] = Object.assign({}, day.hours[hour]);
+      delete hours[time].timestamp; // Not from the original snapshot.
+    });
+  });
+
+  return hours;
 }
 
 const emptyWeather = {

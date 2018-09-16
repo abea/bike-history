@@ -7,3 +7,6 @@
 - [ ] Make sure queried times are converted to UTC for Mongo query.
 - [ ] Convert the UTC ISO string timestamps back to EST for API output.
 - [ ] Install heroku scheduler for regular task running https://devcenter.heroku.com/articles/scheduler
+
+## Improvements to go into production
+- [ ] Always store time in ETC to avoid time zone switching. Also would reduce the Moment Timezone dependency at least to basic Moment.
