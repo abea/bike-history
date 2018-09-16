@@ -88,7 +88,8 @@ exports.returnWeather = async (req, res, next) => {
     query.timestamp = req.query.at;
 
     data = await getWeatherAt(query);
-    req.weather = data;
+    req.weather = data.weather;
+    req.at = data.timestamp;
   } else if (req.query.from && req.query.to) {
 
   } else {
@@ -112,9 +113,10 @@ async function getWeatherAt (q) {
   });
 
   let weather = Object.assign({}, snapshot.hours[q.hour]);
+  const timestamp = weather.timestamp;
   delete weather.timestamp; // Not from the original snapshot.
 
-  return weather;
+  return {weather, timestamp};
 }
 
 const emptyWeather = {
