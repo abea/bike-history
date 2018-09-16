@@ -81,6 +81,38 @@ exports.saveWeather = async (req, res) => {
   res.send(updated);
 };
 
+exports.returnWeather = async (req, res, next) => {
+  let data = {};
+  if (req.query.at) {
+    const query = dateAndHourFrom(req.query.at);
+    query.timestamp = req.query.at;
+
+    data = await getWeatherAt(query);
+    req.weather = data;
+  }
+
+  res.json(data);
+};
+
+function dateAndHourFrom (time) {
+  const date = time.substring(0, time.indexOf('T'));
+  const hour = (new Date(time)).getHours();
+
+  return { date, hour };
+}
+
+async function getWeatherAt (q) {
+  const hourProp = `hours.${q.hour}`;
+  const snapshot = await Weather.findOne({_id: q.date}, {
+    [hourProp]: 1
+  });
+
+  let weather = Object.assign({}, snapshot.hours[q.hour]);
+  delete weather.timestamp; // Not from the original snapshot.
+
+  return weather;
+}
+
 const emptyWeather = {
   timestamp: null,
   geometry: {
