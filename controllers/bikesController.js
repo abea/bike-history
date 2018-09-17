@@ -164,6 +164,112 @@ exports.getPostStatus = async (req, res) => {
   }
 };
 
+exports.returnStations = async (req, res, next) => {
+  const at = req.query.at;
+  const from = req.query.from;
+  const to = req.query.to;
+  const kiosk = req.params.kioskId;
+
+  if (at) {
+    const snapshots = await getStationsAt({
+      at,
+      kiosk
+    });
+
+    req.station = snapshots.station;
+    req.stations = snapshots.stations;
+
+    if (snapshots.errors) {
+      // TODO Handle errors.
+    }
+  } else if (from && to && (to > from)) {
+    const fromTime = estToUtc(from);
+    const toTime = estToUtc(to);
+
+    // Get documents it's possible we might need.
+    const stationDays = await StationDay.find({
+      $and: [
+        {updatedAt: {$gte: fromTime}},
+        {timestamp: {$lte: toTime}}
+      ]
+    });
+
+    req.stationHours = pullSnapshots(stationDays, {fromTime, toTime});
+  } else {
+    req.errors = req.errors || [];
+    req.errors.push({
+      code: 422,
+      message: 'Stations query invalid. Check the "at" or "from"/"to" query strings.'
+    });
+  }
+
+  res.json(req.station || req.stations || req.stationHours);
+};
+
+function estToUtc(time) {
+  return moment.tz(time, 'America/New_York').toISOString();
+}
+
+function pullSnapshots(data, options) {
+  const hours = {};
+
+  data.forEach(day => {
+    const keys = Object.keys(day.hours);
+    // Skip if the day has no hours data.
+    if (keys.length === 0) { return; }
+
+    keys.forEach(hour => {
+      const time = day.hours[hour].timestamp;
+      const kiosk = day.hours[hour].properties.kioskId;
+      // Skip if there's no data or if the hour is outside the query.
+      if (!time || time > options.toTime || time < options.fromTime) { return; }
+
+      hours[time + kiosk] = Object.assign({}, day.hours[hour]);
+      delete hours[time + kiosk].timestamp; // Not from the original snapshot.
+    });
+  });
+
+  return hours;
+}
+
+function hourFromTimestamp (time) { return (new Date(time)).getHours(); }
+
+async function getStationsAt (q) {
+  const hour = hourFromTimestamp(q.at);
+  const hourProp = `hours.${hour}`;
+  const day = q.at.substring(0, q.at.indexOf('T'));
+  const nextDay = moment(day).add(1, 'day').format('YYYY-MM-DD');
+  const result = {};
+
+  const kiosk = q.kiosk;
+  let query = {
+    $and: [
+      {timestamp: {$gte: day}},
+      {timestamp: {$lt: nextDay}}
+    ]
+  };
+
+  if (kiosk) { query.kioskId = kiosk; }
+
+  const snapshot = await StationDay.find(query, {
+    [hourProp]: 1
+  });
+  // TODO Getting back an `$init` property on documents.
+
+  if (kiosk && snapshot.length) {
+    result.station = Object.assign({}, snapshot[0].hours[hour]);
+    delete result.station.timestamp; // Not from the original snapshot.
+  } else {
+    result.stations = snapshot.map(station => {
+      station = Object.assign({}, station.hours[hour]);
+      delete station.timestamp; // Not from the original snapshot.
+      return station;
+    });
+  }
+
+  return result;
+}
+
 const emptyStationDay = {
   timestamp: null,
   geometry: {
