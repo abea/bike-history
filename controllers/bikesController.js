@@ -146,7 +146,7 @@ exports.saveStations = async (req, res) => {
   );
 };
 
-exports.getStatus = async (req, res) => {
+exports.getPostStatus = async (req, res) => {
   const cacheId = req.params.cacheId;
 
   const completed = await Cache.findOne({_id: cacheId});

@@ -84,7 +84,6 @@ exports.saveWeather = async (req, res) => {
 };
 
 exports.returnWeather = async (req, res, next) => {
-  let data = {};
   const at = req.query.at;
   const from = req.query.from;
   const to = req.query.to;
@@ -96,9 +95,9 @@ exports.returnWeather = async (req, res, next) => {
       hour: hourFromTimestamp(at)
     };
 
-    data = await getWeatherAt(query);
-    req.weather = data.weather;
-    req.at = data.timestamp;
+    const snapshot = await getWeatherAt(query);
+    req.weather = snapshot.weather;
+    req.at = snapshot.timestamp;
   } else if (from && to && (to > from)) {
     const fromTime = estToUtc(from);
     const toTime = estToUtc(to);
@@ -120,7 +119,7 @@ exports.returnWeather = async (req, res, next) => {
     });
   }
 
-  res.json(req.weathers || data);
+  next();
 };
 
 function estToUtc(time) {

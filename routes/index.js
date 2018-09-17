@@ -19,11 +19,12 @@ router.post('/api/v1/post/bikes',
 );
 
 router.get('/api/v1/get/bike-processing/:cacheId',
-  bikesController.getStatus
+  bikesController.getPostStatus
 );
 
 router.get('/api/v1/stations',
-  catchErrors(weatherController.returnWeather)
+  catchErrors(weatherController.returnWeather),
+  catchErrors(bikesController.returnStations)
   // - If `at` query string, run getAt
   //  - Get the one weather result
   //  - If kioskId, get that, if not, get all at that time.
