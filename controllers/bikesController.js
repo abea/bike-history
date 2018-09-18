@@ -188,6 +188,7 @@ exports.returnStations = async (req, res, next) => {
 
     // Get documents it's possible we might need.
     const stationDays = await StationDay.find({
+      kioskId: kiosk,
       $and: [
         {updatedAt: {$gte: fromTime}},
         {timestamp: {$lte: toTime}}
@@ -214,20 +215,18 @@ function estToUtc(time) {
 function pullSnapshots(data, options) {
   const hours = {};
 
-  data.forEach(day => {
-    const keys = Object.keys(day.hours);
-    // Skip if the day has no hours data.
-    if (keys.length === 0) { return; }
-
-    keys.forEach(hour => {
+  data.forEach((day, i) => {
+    for (const hour in day.hours) {
       const time = day.hours[hour].timestamp;
       const kiosk = day.hours[hour].properties.kioskId;
       // Skip if there's no data or if the hour is outside the query.
       if (!time || time > options.toTime || time < options.fromTime) { return; }
 
-      hours[time + kiosk] = Object.assign({}, day.hours[hour]);
-      delete hours[time + kiosk].timestamp; // Not from the original snapshot.
-    });
+      // NOTE: `toJSON()` avoids exposing internal document properties if/when delivered via res.json. TODO May not be necessary in final product.
+      hours[`${time}~${kiosk}`] = Object.assign({}, day.hours[hour].toJSON());
+      // Timestamp is not from the original snapshot.
+      delete hours[`${time}~${kiosk}`].timestamp;
+    }
   });
 
   return hours;
@@ -255,14 +254,13 @@ async function getStationsAt (q) {
   const snapshot = await StationDay.find(query, {
     [hourProp]: 1
   });
-  // TODO Getting back an `$init` property on documents.
 
   if (kiosk && snapshot.length) {
-    result.station = Object.assign({}, snapshot[0].hours[hour]);
+    result.station = Object.assign({}, snapshot[0].hours[hour].toJSON());
     delete result.station.timestamp; // Not from the original snapshot.
   } else {
     result.stations = snapshot.map(station => {
-      station = Object.assign({}, station.hours[hour]);
+      station = Object.assign({}, station.hours[hour].toJSON());
       delete station.timestamp; // Not from the original snapshot.
       return station;
     });
