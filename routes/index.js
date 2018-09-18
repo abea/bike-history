@@ -22,7 +22,7 @@ router.get('/api/v1/get/bike-processing/:cacheId',
   bikesController.getPostStatus
 );
 
-router.get('/api/v1/stations',
+router.get('/api/v1/get/stations',
   catchErrors(weatherController.returnWeather),
   catchErrors(bikesController.returnStations)
   // - If `at` query string, run getAt
@@ -31,7 +31,7 @@ router.get('/api/v1/stations',
   // - Else if from and to query strings, run getBetween
 );
 
-router.get('/api/v1/stations/:kioskId',
+router.get('/api/v1/get/stations/:kioskId',
   catchErrors(weatherController.returnWeather),
   catchErrors(bikesController.returnStations)
   // - If `at` query string, run getAt

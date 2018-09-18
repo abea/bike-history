@@ -182,7 +182,7 @@ exports.returnStations = async (req, res, next) => {
     if (snapshots.errors) {
       // TODO Handle errors.
     }
-  } else if (from && to && (to > from)) {
+  } else if (kiosk && (to > from)) {
     const fromTime = estToUtc(from);
     const toTime = estToUtc(to);
 
@@ -197,13 +197,14 @@ exports.returnStations = async (req, res, next) => {
     req.stationHours = pullSnapshots(stationDays, {fromTime, toTime});
   } else {
     req.errors = req.errors || [];
+
     req.errors.push({
       code: 422,
-      message: 'Stations query invalid. Check the "at" or "from"/"to" query strings.'
+      message: 'Stations query invalid. You must include a date-formatted "at" query string or "from" and "to" query strings (the former being before the latter). If querying a time span, the kiosk ID must be included (e.g., /api/v1/get/stations/:kioskId?from=[a date]&to=[a date]).'
     });
   }
 
-  res.json(req.station || req.stations || req.stationHours);
+  res.json(req.station || req.stations || req.stationHours || req.errors);
 };
 
 function estToUtc(time) {
