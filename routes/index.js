@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const weatherController = require('../controllers/weatherController');
 const bikesController = require('../controllers/bikesController');
+const deliveryController = require('../controllers/deliveryController');
 const {catchErrors} = require('../handlers/errorHandlers');
 const indegoDump = require('../sample-data/indego-dump.json');
 
@@ -24,20 +25,14 @@ router.get('/api/v1/get/bike-processing/:cacheId',
 
 router.get('/api/v1/get/stations',
   catchErrors(weatherController.returnWeather),
-  catchErrors(bikesController.returnStations)
-  // - If `at` query string, run getAt
-  //  - Get the one weather result
-  //  - If kioskId, get that, if not, get all at that time.
-  // - Else if from and to query strings, run getBetween
+  catchErrors(bikesController.returnStations),
+  deliveryController.returnResults
 );
 
 router.get('/api/v1/get/stations/:kioskId',
   catchErrors(weatherController.returnWeather),
-  catchErrors(bikesController.returnStations)
-  // - If `at` query string, run getAt
-  //  - Get the one weather result
-  //  - If kioskId, get that, if not, get all at that time.
-  // - Else if from and to query strings, run getBetween
+  catchErrors(bikesController.returnStations),
+  deliveryController.returnResults
 );
 
 router.get('/api/v1/get/sample-bikes',

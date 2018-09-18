@@ -135,7 +135,9 @@ async function getWeatherAt (q) {
     [hourProp]: 1
   });
 
-  let weather = Object.assign({}, snapshot.hours[q.hour]);
+  // NOTE: `toJSON()` avoids exposing internal document properties if/when
+  // delivered via res.json.
+  let weather = Object.assign({}, snapshot.hours[q.hour].toJSON());
   const timestamp = weather.timestamp;
   delete weather.timestamp; // Not from the original snapshot.
 

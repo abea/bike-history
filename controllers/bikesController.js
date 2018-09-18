@@ -5,7 +5,7 @@ const uuid = require('uuid/v4');
 const moment = require('moment-timezone');
 let savingMessage = 'Stations saving...';
 let finishedCount = 0; // TODO: Remove this and the logs once in production.
-
+// TODO: Move all functions below exports.
 const processStation = function (data) {
   const station = data.station;
   const stationId = station.properties.kioskId;
@@ -205,7 +205,8 @@ exports.returnStations = async (req, res, next) => {
     });
   }
 
-  res.json(req.station || req.stations || req.stationHours || req.errors);
+  // res.json(req.station || req.stations || req.stationHours || req.errors); TODO
+  next();
 };
 
 function estToUtc(time) {
@@ -222,7 +223,8 @@ function pullSnapshots(data, options) {
       // Skip if there's no data or if the hour is outside the query.
       if (!time || time > options.toTime || time < options.fromTime) { return; }
 
-      // NOTE: `toJSON()` avoids exposing internal document properties if/when delivered via res.json. TODO May not be necessary in final product.
+      // NOTE: `toJSON()` avoids exposing internal document properties if/when
+      // delivered via res.json.
       hours[`${time}~${kiosk}`] = Object.assign({}, day.hours[hour].toJSON());
       // Timestamp is not from the original snapshot.
       delete hours[`${time}~${kiosk}`].timestamp;
