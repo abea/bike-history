@@ -11,6 +11,16 @@ exports.returnResults = (req, res) => {
     } else if (req.stations) {
       results.stations = req.stations;
     }
+  } else if (req.weathers && req.stationHours) {
+    results.data = [];
+
+    for (const time in req.weathers) {
+      results.data.push({
+        at: utcToEst(time),
+        weather: req.weathers[time],
+        station: req.stationHours[time]
+      });
+    }
   }
 
   if (req.errors) {
@@ -23,21 +33,3 @@ exports.returnResults = (req, res) => {
 function utcToEst(time) {
   return moment.tz(time, 'America/New_York').format();
 }
-// This API should respond as follows, with the actual time of the first snapshot of data on or after the requested time and the data:
-//
-// ```javascript
-// {
-//   at: '2017-11-01:T11:00:01',
-//   weather: { /* as per the Open Weather Map API response for Philadelphia */ },
-//   stations: { /* As per the Indego API */ }
-// }
-// ```
-
-// Enveloped:
-// {
-//   data: [
-//     { ... },
-//     { ... },
-//     // ...
-//   ]
-// }

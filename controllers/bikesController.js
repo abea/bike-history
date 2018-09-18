@@ -219,15 +219,14 @@ function pullSnapshots(data, options) {
   data.forEach((day, i) => {
     for (const hour in day.hours) {
       const time = day.hours[hour].timestamp;
-      const kiosk = day.hours[hour].properties.kioskId;
       // Skip if there's no data or if the hour is outside the query.
       if (!time || time > options.toTime || time < options.fromTime) { return; }
 
       // NOTE: `toJSON()` avoids exposing internal document properties if/when
       // delivered via res.json.
-      hours[`${time}~${kiosk}`] = Object.assign({}, day.hours[hour].toJSON());
+      hours[time] = Object.assign({}, day.hours[hour].toJSON());
       // Timestamp is not from the original snapshot.
-      delete hours[`${time}~${kiosk}`].timestamp;
+      delete hours[time].timestamp;
     }
   });
 

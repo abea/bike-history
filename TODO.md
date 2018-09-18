@@ -1,4 +1,5 @@
 - [ ] Finish GET routes
+- [ ] Add `daily/hourly` frequency flag options
 - [ ] Update tests for status check requests.
 - [ ] Make sure queried times are converted to UTC for Mongo query.
 - [ ] Convert the UTC ISO string timestamps back to EST for API output.
