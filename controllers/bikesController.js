@@ -5,7 +5,7 @@ const uuid = require('uuid/v4');
 const moment = require('moment-timezone');
 let savingMessage = 'Stations saving...';
 let finishedCount = 0; // TODO: Remove this and the logs once in production.
-
+// TODO: Move all functions below exports.
 const processStation = function (data) {
   const station = data.station;
   const stationId = station.properties.kioskId;
@@ -70,6 +70,7 @@ const saveNew = function (data) {
   // Record the day's timestamp as the ISO String of the first recorded data
   // that day.
   newData.timestamp = data.timestamp;
+  newData.updatedAt = data.timestamp;
   newData.hours = {};
 
   const hoursInDay = [...Array(24).keys()];
@@ -90,7 +91,8 @@ const updateOld = function (data) {
     },
     {
       $set: {
-        [field]: data.station
+        [field]: data.station,
+        updatedAt: data.timestamp
       }
     },
     {
@@ -144,7 +146,7 @@ exports.saveStations = async (req, res) => {
   );
 };
 
-exports.getStatus = async (req, res) => {
+exports.getPostStatus = async (req, res) => {
   const cacheId = req.params.cacheId;
 
   const completed = await Cache.findOne({_id: cacheId});
@@ -161,6 +163,112 @@ exports.getStatus = async (req, res) => {
     });
   }
 };
+
+exports.returnStations = async (req, res, next) => {
+  const at = req.query.at;
+  const from = req.query.from;
+  const to = req.query.to;
+  const kiosk = req.params.kioskId;
+
+  if (at) {
+    const snapshots = await getStationsAt({
+      at,
+      kiosk
+    });
+
+    req.station = snapshots.station;
+    req.stations = snapshots.stations;
+
+    if (snapshots.errors) {
+      // TODO Handle errors.
+    }
+  } else if (kiosk && (to > from)) {
+    const fromTime = estToUtc(from);
+    const toTime = estToUtc(to);
+
+    // Get documents it's possible we might need.
+    const stationDays = await StationDay.find({
+      kioskId: kiosk,
+      $and: [
+        {updatedAt: {$gte: fromTime}},
+        {timestamp: {$lte: toTime}}
+      ]
+    });
+
+    req.stationHours = pullSnapshots(stationDays, {fromTime, toTime});
+  } else {
+    req.errors = req.errors || [];
+
+    req.errors.push({
+      code: 422,
+      message: 'Stations query invalid. You must include a date-formatted "at" query string or "from" and "to" query strings (the former being before the latter). If querying a time span, the kiosk ID must be included (e.g., /api/v1/get/stations/:kioskId?from=[a date]&to=[a date]).'
+    });
+  }
+
+  // res.json(req.station || req.stations || req.stationHours || req.errors); TODO
+  next();
+};
+
+function estToUtc(time) {
+  return moment.tz(time, 'America/New_York').toISOString();
+}
+
+function pullSnapshots(data, options) {
+  const hours = {};
+
+  data.forEach((day, i) => {
+    for (const hour in day.hours) {
+      const time = day.hours[hour].timestamp;
+      // Skip if there's no data or if the hour is outside the query.
+      if (!time || time > options.toTime || time < options.fromTime) { return; }
+
+      // NOTE: `toJSON()` avoids exposing internal document properties if/when
+      // delivered via res.json.
+      hours[time] = Object.assign({}, day.hours[hour].toJSON());
+      // Timestamp is not from the original snapshot.
+      delete hours[time].timestamp;
+    }
+  });
+
+  return hours;
+}
+
+function hourFromTimestamp (time) { return (new Date(time)).getHours(); }
+
+async function getStationsAt (q) {
+  const hour = hourFromTimestamp(q.at);
+  const hourProp = `hours.${hour}`;
+  const day = q.at.substring(0, q.at.indexOf('T'));
+  const nextDay = moment(day).add(1, 'day').format('YYYY-MM-DD');
+  const result = {};
+
+  const kiosk = q.kiosk;
+  let query = {
+    $and: [
+      {timestamp: {$gte: day}},
+      {timestamp: {$lt: nextDay}}
+    ]
+  };
+
+  if (kiosk) { query.kioskId = kiosk; }
+
+  const snapshot = await StationDay.find(query, {
+    [hourProp]: 1
+  });
+
+  if (kiosk && snapshot.length) {
+    result.station = Object.assign({}, snapshot[0].hours[hour].toJSON());
+    delete result.station.timestamp; // Not from the original snapshot.
+  } else {
+    result.stations = snapshot.map(station => {
+      station = Object.assign({}, station.hours[hour].toJSON());
+      delete station.timestamp; // Not from the original snapshot.
+      return station;
+    });
+  }
+
+  return result;
+}
 
 const emptyStationDay = {
   timestamp: null,

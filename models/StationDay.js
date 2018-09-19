@@ -53,7 +53,8 @@ for (const hour of hoursInDay) { hoursObject[hour] = stationFields; }
 
 const schemaObj = Object.assign({
   _id: String,
-  timestamp: String,
+  timestamp: String, // TODO Should have named this as createdAt
+  updatedAt: String,
   kioskId: Number,
   hours: hoursObject
 });

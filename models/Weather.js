@@ -61,7 +61,8 @@ for (const hour of hoursInDay) { hoursObject[hour] = weatherFields; }
 
 const schemaObj = Object.assign({
   _id: String, // String format of the date in ISO date format.
-  timestamp: String,
+  timestamp: String, // TODO Should have named this as createdAt
+  updatedAt: String,
   hours: hoursObject
 });
 
