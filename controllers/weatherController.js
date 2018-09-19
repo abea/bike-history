@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Weather = mongoose.model('Weather');
 const moment = require('moment-timezone');
+const h = require('../helpers');
 
 exports.prepWeather = (req, res, next) => {
   const data = req.body;
@@ -91,16 +92,17 @@ exports.returnWeather = async (req, res, next) => {
   if (at) {
     const query = {
       timestamp: at,
-      date: dateFromTimestamp(at),
-      hour: hourFromTimestamp(at)
+      date: h.dateFromTimestamp(at),
+      hour: h.hourFromTimestamp(at)
     };
 
     const snapshot = await getWeatherAt(query);
     req.weather = snapshot.weather;
     req.at = snapshot.timestamp;
   } else if (from && to && (to > from)) {
-    const fromTime = estToUtc(from);
-    const toTime = estToUtc(to);
+    const fromTime = h.estToUtc(from);
+    const toTime = h.estToUtc(to);
+    const freq = (req.query.frequency === 'daily') ? 'daily' : 'hourly';
 
     // Get documents it's possible we might need.
     const weatherDays = await Weather.find({
@@ -110,7 +112,11 @@ exports.returnWeather = async (req, res, next) => {
       ]
     });
 
-    req.weathers = pullSnapshots(weatherDays, {fromTime, toTime});
+    req.weathers = h.pullSnapshots(weatherDays, {
+      fromTime,
+      toTime,
+      freq
+    });
   } else {
     req.errors = req.errors || [];
     req.errors.push({
@@ -121,13 +127,6 @@ exports.returnWeather = async (req, res, next) => {
 
   next();
 };
-
-function estToUtc(time) {
-  return moment.tz(time, 'America/New_York').toISOString();
-}
-
-function dateFromTimestamp (time) { return time.substring(0, time.indexOf('T')); }
-function hourFromTimestamp (time) { return (new Date(time)).getHours(); }
 
 async function getWeatherAt (q) {
   const hourProp = `hours.${q.hour}`;
@@ -142,27 +141,6 @@ async function getWeatherAt (q) {
   delete weather.timestamp; // Not from the original snapshot.
 
   return {weather, timestamp};
-}
-
-function pullSnapshots(data, options) {
-  const hours = {};
-
-  data.forEach(day => {
-    const keys = Object.keys(day.hours);
-    // Skip if the day has no hours data.
-    if (keys.length === 0) { return; }
-
-    keys.forEach(hour => {
-      const time = day.hours[hour].timestamp;
-      // Skip if there's no data or if the hour is outside the query.
-      if (!time || time > options.toTime || time < options.fromTime) { return; }
-
-      hours[time] = Object.assign({}, day.hours[hour]);
-      delete hours[time].timestamp; // Not from the original snapshot.
-    });
-  });
-
-  return hours;
 }
 
 const emptyWeather = {
