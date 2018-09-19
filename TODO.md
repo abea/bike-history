@@ -3,6 +3,7 @@
 - [ ] Convert the UTC ISO string timestamps back to EST for API output.
 - [ ] Make all API responses more consistent.
   - Error objects in req.errors array with `code` and `message` properties.
+- [ ] Add pagination to API response
 
 ## Improvements to go into production
 - [ ] Always store time in ETC to avoid time zone switching. Also would reduce the Moment Timezone dependency at least to basic Moment.

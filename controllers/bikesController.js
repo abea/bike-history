@@ -3,6 +3,7 @@ const StationDay = mongoose.model('StationDay');
 const Cache = mongoose.model('Cache');
 const uuid = require('uuid/v4');
 const moment = require('moment-timezone');
+const h = require('../helpers');
 let savingMessage = 'Stations saving...';
 let finishedCount = 0; // TODO: Remove this and the logs once in production.
 
@@ -74,9 +75,9 @@ exports.returnStations = async (req, res, next) => {
       // TODO Handle errors.
     }
   } else if (kiosk && (to > from)) {
-    const fromTime = estToUtc(from);
-    const toTime = estToUtc(to);
-
+    const fromTime = h.estToUtc(from);
+    const toTime = h.estToUtc(to);
+    const freq = (req.query.frequency === 'daily') ? 'daily' : 'hourly';
     // Get documents it's possible we might need.
     const stationDays = await StationDay.find({
       kioskId: kiosk,
@@ -86,7 +87,11 @@ exports.returnStations = async (req, res, next) => {
       ]
     });
 
-    req.stationHours = pullSnapshots(stationDays, {fromTime, toTime});
+    req.stationHours = h.pullSnapshots(stationDays, {
+      fromTime,
+      toTime,
+      freq
+    });
   } else {
     req.errors = req.errors || [];
 
@@ -96,7 +101,6 @@ exports.returnStations = async (req, res, next) => {
     });
   }
 
-  // res.json(req.station || req.stations || req.stationHours || req.errors); TODO
   next();
 };
 
@@ -209,34 +213,8 @@ const collectPromises = data => {
   });
 };
 
-function estToUtc(time) {
-  return moment.tz(time, 'America/New_York').toISOString();
-}
-
-function pullSnapshots(data, options) {
-  const hours = {};
-
-  data.forEach((day, i) => {
-    for (const hour in day.hours) {
-      const time = day.hours[hour].timestamp;
-      // Skip if there's no data or if the hour is outside the query.
-      if (!time || time > options.toTime || time < options.fromTime) { return; }
-
-      // NOTE: `toJSON()` avoids exposing internal document properties if/when
-      // delivered via res.json.
-      hours[time] = Object.assign({}, day.hours[hour].toJSON());
-      // Timestamp is not from the original snapshot.
-      delete hours[time].timestamp;
-    }
-  });
-
-  return hours;
-}
-
-function hourFromTimestamp (time) { return (new Date(time)).getHours(); }
-
 async function getStationsAt (q) {
-  const hour = hourFromTimestamp(q.at);
+  const hour = h.hourFromTimestamp(q.at);
   const hourProp = `hours.${hour}`;
   const day = q.at.substring(0, q.at.indexOf('T'));
   const nextDay = moment(day).add(1, 'day').format('YYYY-MM-DD');
