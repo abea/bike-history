@@ -70,10 +70,6 @@ exports.returnStations = async (req, res, next) => {
 
     req.station = snapshots.station;
     req.stations = snapshots.stations;
-
-    if (snapshots.errors) {
-      // TODO Handle errors.
-    }
   } else if (kiosk && (to > from)) {
     const fromTime = h.estToUtc(from);
     const toTime = h.estToUtc(to);

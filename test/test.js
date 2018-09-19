@@ -7,7 +7,8 @@ require('../models/StationDay');
 require('../models/Weather');
 require('../models/Cache');
 const sampleWeather = require('../sample-data/weather-dump.json');
-// const sampleStations = require('../sample-data/indego-dump.json');
+const sampleStations = require('../sample-data/indego-dump.json');
+// const {checkBikes} = require('../scripts/get-data');
 const express = require('express');
 const routes = require('../routes/index');
 const bodyParser = require('body-parser');
@@ -89,25 +90,71 @@ describe('Database', function() {
           console.error(err.error);
         });
 
-      expect(result).to.equal('OK');
+      expect(result.status).to.equal(200);
+    });
+  });
+
+  describe('Stations Post', function() {
+    // let cacheId = '';
+
+    it('should initially receive a 202 response.', async () => {
+      let result = {};
+      const timestamp = (new Date()).toISOString();
+
+      const stationsPostOptions = {
+        method: 'POST',
+        uri: `${process.env.ROOT_URL}/api/v1/post/stations`,
+        body: {
+          timestamp,
+          weather: sampleStations
+        },
+        json: true
+      };
+
+      await request(stationsPostOptions)
+        .then(res => {
+          result = res;
+          // cacheId = result.cacheId;
+        })
+        .catch(err => {
+          console.error(err.error);
+        });
+
+      expect(result.status).to.equal(202);
     });
 
-    // it('should have data for the hour when sent.', async () => {
-    //   let result = {};
-    //   const timestamp = (new Date()).toISOString();
-    //   const hour = (new Date(timestamp)).getHours();
+    // it('should check the cache and eventually receive a 200 response.', async () => {
+    //   const followUp = new Promise((resolve, reject) => {
+    //     let checks = 0;
     //
-    //   const weatherPostOptions = {
-    //     method: 'POST',
-    //     uri: `${process.env.ROOT_URL}/api/v1/post/weather`,
-    //     body: {
-    //       timestamp,
-    //       weather: sampleWeather
-    //     },
-    //     json: true
-    //   };
+    //     const checkIt = function() {
+    //       checks++;
     //
-    //   await request(weatherPostOptions)
+    //       checkBikes(cacheId)
+    //         .then(res => {
+    //           if (res.status === 201) {
+    //             resolve(res);
+    //           } else if (checks > 15) {
+    //             // status = {
+    //             //   status: 408,
+    //             //   message: 'Station processing timeout.'
+    //             // };
+    //             resolve({
+    //               status: 408,
+    //               message: 'Station processing timeout.'
+    //             });
+    //           } else {
+    //             console.info('🚲', res.message);
+    //             setTimeout(checkIt, 10000);
+    //           }
+    //         })
+    //         .catch(err => reject(err));
+    //     };
+    //
+    //     checkIt();
+    //   });
+    //   let result;
+    //   await followUp
     //     .then(res => {
     //       result = res;
     //     })
@@ -115,8 +162,8 @@ describe('Database', function() {
     //       console.error(err.error);
     //     });
     //
-    //   expect(result.hours[hour].name).to.not.equal(null);
-    // });
+    //   expect(result.status).to.equal(200);
+    // }).timeout(60000);
   });
 
   // describe('Cache route', function() {

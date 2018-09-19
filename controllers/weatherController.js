@@ -55,7 +55,10 @@ exports.saveWeather = async (req, res) => {
         }
       }
 
-      res.sendStatus(200);
+      res.status(200).send({
+        status: 200,
+        message: `Document with _id ${doc._id} has been saved.`
+      });
     });
 
     return;
@@ -82,7 +85,10 @@ exports.saveWeather = async (req, res) => {
   );
 
   if (updated._id) {
-    res.sendStatus(200);
+    res.status(200).send({
+      status: 200,
+      message: `Document with _id ${updated._id} has been saved.`
+    });
   } else {
     throw Error('Weather document did not update.');
   }

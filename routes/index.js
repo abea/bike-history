@@ -15,7 +15,7 @@ router.post('/api/v1/post/weather',
   catchErrors(weatherController.saveWeather)
 );
 
-router.post('/api/v1/post/bikes',
+router.post('/api/v1/post/stations',
   catchErrors(bikesController.saveStations)
 );
 

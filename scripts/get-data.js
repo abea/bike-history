@@ -86,7 +86,7 @@ async function init () {
 
   const bikesPostOptions = {
     method: 'POST',
-    uri: `${process.env.ROOT_URL}/api/v1/post/bikes`,
+    uri: `${process.env.ROOT_URL}/api/v1/post/stations`,
     body: {
       timestamp,
       stations
@@ -153,4 +153,7 @@ async function init () {
     });
 }
 
-module.exports = init;
+module.exports = {
+  init,
+  checkBikes
+};
