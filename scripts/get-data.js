@@ -37,6 +37,7 @@ function getBikes () {
     });
 }
 
+// Function to check if the bike stations are done saving.
 function checkBikes (id) {
   return request({
     uri: `${process.env.ROOT_URL}/api/v1/get/bike-processing/${id}`,

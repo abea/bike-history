@@ -19,7 +19,6 @@ exports.prepWeather = (req, res, next) => {
 };
 
 exports.saveWeather = async (req, res) => {
-  // Check if a document exists for that calendar day.
   const timestamp = req.body.timestamp;
   req.body.weather.timestamp = timestamp;
   const dayStamp = moment(timestamp).tz("America/New_York").format('YYYY-MM-DD');
@@ -27,6 +26,7 @@ exports.saveWeather = async (req, res) => {
 
   let data = {};
 
+  // Check if a document exists for that calendar day.
   let weatherDay = await Weather.findOne({
     _id: dayStamp
   });
@@ -55,7 +55,7 @@ exports.saveWeather = async (req, res) => {
         }
       }
 
-      res.send(doc);
+      res.sendStatus(200);
     });
 
     return;
@@ -81,7 +81,11 @@ exports.saveWeather = async (req, res) => {
     }
   );
 
-  res.send(updated);
+  if (updated._id) {
+    res.sendStatus(200);
+  } else {
+    throw Error('Weather document did not update.');
+  }
 };
 
 exports.returnWeather = async (req, res, next) => {
@@ -98,7 +102,7 @@ exports.returnWeather = async (req, res, next) => {
 
     const snapshot = await getWeatherAt(query);
     req.weather = snapshot.weather;
-    req.at = snapshot.timestamp;
+    req.at = snapshot.timestamp ? snapshot.timestamp : at;
   } else if (from && to && (to > from)) {
     const fromTime = h.estToUtc(from);
     const toTime = h.estToUtc(to);
@@ -134,6 +138,12 @@ async function getWeatherAt (q) {
     [hourProp]: 1
   });
 
+  if (!snapshot) {
+    return {
+      weather: {},
+      timestamp: null
+    };
+  }
   // NOTE: `toJSON()` avoids exposing internal document properties if/when
   // delivered via res.json.
   let weather = Object.assign({}, snapshot.hours[q.hour].toJSON());

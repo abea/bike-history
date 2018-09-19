@@ -18,7 +18,7 @@ Using MongoDB, Node.js, Express, [Bluebird](https://npmjs.org/package/bluebird),
   - [X] Snapshots of one station over a range of times  (`/api/v1/stations/KIOSKIDGOESHERE?from=2017-11-01T11:00:00&to=2017-12-01T11:00:00&frequency=daily`)
 - [ ] App should have mocha tests built for all requirements
   - [ ] Storing indego and weather data
-  - [ ] Downloading once per hour
+  - [ ] Downloading once per hour ???
   - [ ] Providing API for data
   - [ ] All station at time query
   - [ ] One station at time query
