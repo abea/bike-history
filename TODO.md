@@ -1,6 +1,4 @@
-- [ ] Add `daily/hourly` frequency flag options
 - [ ] Update tests for status check requests.
-- [ ] Convert the UTC ISO string timestamps back to EST for API output.
 - [ ] Make all API responses more consistent.
   - Error objects in req.errors array with `code` and `message` properties.
 - [ ] Add pagination to API response
@@ -18,3 +16,5 @@
 - [X] Install heroku scheduler for regular task running https://devcenter.heroku.com/articles/scheduler
 - [X] Finish GET routes
 - [X] Make sure queried times are converted to UTC for Mongo query.
+- [X] Convert the UTC ISO string timestamps back to EST for API output.
+- [X] Add `daily/hourly` frequency flag options
