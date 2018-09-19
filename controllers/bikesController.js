@@ -5,7 +5,101 @@ const uuid = require('uuid/v4');
 const moment = require('moment-timezone');
 let savingMessage = 'Stations saving...';
 let finishedCount = 0; // TODO: Remove this and the logs once in production.
-// TODO: Move all functions below exports.
+
+exports.saveStations = async (req, res) => {
+  const stations = req.body.stations;
+  const timestamp = req.body.timestamp;
+  const dayStamp = moment(timestamp).tz("America/New_York").format('YYYY-MM-DD');
+  const cache = await (new Cache({ _id: uuid() })).save();
+  const cacheId = cache._id;
+
+  finishedCount = 0;
+
+  res.status(202).send({
+    status: 202,
+    message: savingMessage,
+    cacheId
+  });
+
+  const bikePromises = await collectPromises({
+    array: stations,
+    dayStamp,
+    timestamp
+  });
+
+  const stationData = await Promise.all(bikePromises);
+
+  await Cache.findOneAndUpdate(
+    { _id: cacheId },
+    {
+      $set: { count: stationData.length }
+    }
+  );
+};
+
+exports.getPostStatus = async (req, res) => {
+  const cacheId = req.params.cacheId;
+
+  const completed = await Cache.findOne({_id: cacheId});
+
+  if (completed.count) {
+    res.status(201).send({
+      status: 201,
+      message: `Saved and/or updated ${completed.count} stations`
+    });
+  } else {
+    res.status(202).send({
+      status: 202,
+      message: savingMessage
+    });
+  }
+};
+
+exports.returnStations = async (req, res, next) => {
+  const at = req.query.at;
+  const from = req.query.from;
+  const to = req.query.to;
+  const kiosk = req.params.kioskId;
+
+  if (at) {
+    const snapshots = await getStationsAt({
+      at,
+      kiosk
+    });
+
+    req.station = snapshots.station;
+    req.stations = snapshots.stations;
+
+    if (snapshots.errors) {
+      // TODO Handle errors.
+    }
+  } else if (kiosk && (to > from)) {
+    const fromTime = estToUtc(from);
+    const toTime = estToUtc(to);
+
+    // Get documents it's possible we might need.
+    const stationDays = await StationDay.find({
+      kioskId: kiosk,
+      $and: [
+        {updatedAt: {$gte: fromTime}},
+        {timestamp: {$lte: toTime}}
+      ]
+    });
+
+    req.stationHours = pullSnapshots(stationDays, {fromTime, toTime});
+  } else {
+    req.errors = req.errors || [];
+
+    req.errors.push({
+      code: 422,
+      message: 'Stations query invalid. You must include a date-formatted "at" query string or "from" and "to" query strings (the former being before the latter). If querying a time span, the kiosk ID must be included (e.g., /api/v1/get/stations/:kioskId?from=[a date]&to=[a date]).'
+    });
+  }
+
+  // res.json(req.station || req.stations || req.stationHours || req.errors); TODO
+  next();
+};
+
 const processStation = function (data) {
   const station = data.station;
   const stationId = station.properties.kioskId;
@@ -113,100 +207,6 @@ const collectPromises = data => {
 
     resolve(promises);
   });
-};
-
-exports.saveStations = async (req, res) => {
-  const stations = req.body.stations;
-  const timestamp = req.body.timestamp;
-  const dayStamp = moment(timestamp).tz("America/New_York").format('YYYY-MM-DD');
-  const cache = await (new Cache({ _id: uuid() })).save();
-  const cacheId = cache._id;
-
-  finishedCount = 0;
-
-  res.status(202).send({
-    status: 202,
-    message: savingMessage,
-    cacheId
-  });
-
-  const bikePromises = await collectPromises({
-    array: stations,
-    dayStamp,
-    timestamp
-  });
-
-  const stationData = await Promise.all(bikePromises);
-
-  await Cache.findOneAndUpdate(
-    { _id: cacheId },
-    {
-      $set: { count: stationData.length }
-    }
-  );
-};
-
-exports.getPostStatus = async (req, res) => {
-  const cacheId = req.params.cacheId;
-
-  const completed = await Cache.findOne({_id: cacheId});
-
-  if (completed.count) {
-    res.status(201).send({
-      status: 201,
-      message: `Saved and/or updated ${completed.count} stations`
-    });
-  } else {
-    res.status(202).send({
-      status: 202,
-      message: savingMessage
-    });
-  }
-};
-
-exports.returnStations = async (req, res, next) => {
-  const at = req.query.at;
-  const from = req.query.from;
-  const to = req.query.to;
-  const kiosk = req.params.kioskId;
-
-  if (at) {
-    const snapshots = await getStationsAt({
-      at,
-      kiosk
-    });
-
-    req.station = snapshots.station;
-    req.stations = snapshots.stations;
-
-    if (snapshots.errors) {
-      // TODO Handle errors.
-    }
-  } else if (kiosk && (to > from)) {
-    const fromTime = estToUtc(from);
-    const toTime = estToUtc(to);
-
-    // Get documents it's possible we might need.
-    const stationDays = await StationDay.find({
-      kioskId: kiosk,
-      $and: [
-        {updatedAt: {$gte: fromTime}},
-        {timestamp: {$lte: toTime}}
-      ]
-    });
-
-    req.stationHours = pullSnapshots(stationDays, {fromTime, toTime});
-  } else {
-    req.errors = req.errors || [];
-
-    req.errors.push({
-      code: 422,
-      message: 'Stations query invalid. You must include a date-formatted "at" query string or "from" and "to" query strings (the former being before the latter). If querying a time span, the kiosk ID must be included (e.g., /api/v1/get/stations/:kioskId?from=[a date]&to=[a date]).'
-    });
-  }
-
-  // res.json(req.station || req.stations || req.stationHours || req.errors); TODO
-  next();
 };
 
 function estToUtc(time) {
