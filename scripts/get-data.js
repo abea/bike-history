@@ -84,7 +84,7 @@ async function init () {
       console.error('🚫⛈', err.error);
     });
 
-  const bikesPostOptions = {
+  const stationsPostOptions = {
     method: 'POST',
     uri: `${process.env.ROOT_URL}/api/v1/post/stations`,
     body: {
@@ -94,9 +94,12 @@ async function init () {
     json: true
   };
 
-  let statusId;
   // - Post the stations snapshot, with timestamp, to the stations route.
-  await request(bikesPostOptions)
+  await postStations(stationsPostOptions);
+}
+
+async function postStations (options) {
+  return request(options)
     .then(res => {
       if (!res) {
         throw Error('No result returned from bikes post request.');
@@ -105,40 +108,7 @@ async function init () {
 
       return res;
     })
-    .then(async status => {
-      statusId = status.cacheId;
-
-      return new Promise((resolve, reject) => {
-        if (status.status === 201) {
-          return resolve(status);
-        }
-
-        let checks = 0;
-
-        const checkIt = function() {
-          checks++;
-
-          checkBikes(statusId)
-            .then(res => {
-              if (res.status === 201) {
-                resolve(res);
-              } else if (checks > 15) {
-                status = {
-                  status: 408,
-                  message: 'Station processing timeout.'
-                };
-                resolve(status);
-              } else {
-                console.info('🚲', res.message);
-                setTimeout(checkIt, 10000);
-              }
-            })
-            .catch(err => reject(err));
-        };
-
-        checkIt();
-      });
-    })
+    .then(stationChecker)
     .then(status => {
       // TODO: Remove this step or simplify logs once in production.
       if (status.status === 408) {
@@ -153,7 +123,42 @@ async function init () {
     });
 }
 
+async function stationChecker (status) {
+  const statusId = status.cacheId;
+
+  return new Promise((resolve, reject) => {
+    if (status.status === 201) {
+      return resolve(status);
+    }
+
+    let checks = 0;
+
+    const checkIt = function() {
+      checks++;
+
+      checkBikes(statusId)
+        .then(res => {
+          if (res.status === 201) {
+            resolve(res);
+          } else if (checks > 15) {
+            status = {
+              status: 408,
+              message: 'Station processing timeout.'
+            };
+            resolve(status);
+          } else {
+            console.info('🚲', res.message);
+            setTimeout(checkIt, 10000);
+          }
+        })
+        .catch(err => reject(err));
+    };
+
+    checkIt();
+  });
+}
+
 module.exports = {
   init,
-  checkBikes
+  postStations
 };

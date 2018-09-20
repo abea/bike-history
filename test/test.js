@@ -8,7 +8,7 @@ require('../models/Weather');
 require('../models/Cache');
 const sampleWeather = require('../sample-data/weather-dump.json');
 const sampleStations = require('../sample-data/indego-dump.json');
-// const {checkBikes} = require('../scripts/get-data');
+const getter = require('../scripts/get-data');
 const express = require('express');
 const routes = require('../routes/index');
 const bodyParser = require('body-parser');
@@ -95,10 +95,7 @@ describe('Database', function() {
   });
 
   describe('Stations Post', function() {
-    // let cacheId = '';
-
     it('should initially receive a 202 response.', async () => {
-      let result = {};
       const timestamp = (new Date()).toISOString();
 
       const stationsPostOptions = {
@@ -106,55 +103,29 @@ describe('Database', function() {
         uri: `${process.env.ROOT_URL}/api/v1/post/stations`,
         body: {
           timestamp,
-          weather: sampleStations
+          stations: sampleStations
         },
         json: true
       };
 
-      await request(stationsPostOptions)
-        .then(res => {
-          result = res;
-          // cacheId = result.cacheId;
-        })
+      const result = await getter.postStations(stationsPostOptions)
+        // .then(res => {
+        //   result = res;
+        //   cacheId = result.cacheId;
+        // })
         .catch(err => {
           console.error(err.error);
         });
 
       expect(result.status).to.equal(202);
-    });
-
+    }).timeout(120000);
+    //
     // it('should check the cache and eventually receive a 200 response.', async () => {
-    //   const followUp = new Promise((resolve, reject) => {
-    //     let checks = 0;
-    //
-    //     const checkIt = function() {
-    //       checks++;
-    //
-    //       checkBikes(cacheId)
-    //         .then(res => {
-    //           if (res.status === 201) {
-    //             resolve(res);
-    //           } else if (checks > 15) {
-    //             // status = {
-    //             //   status: 408,
-    //             //   message: 'Station processing timeout.'
-    //             // };
-    //             resolve({
-    //               status: 408,
-    //               message: 'Station processing timeout.'
-    //             });
-    //           } else {
-    //             console.info('🚲', res.message);
-    //             setTimeout(checkIt, 10000);
-    //           }
-    //         })
-    //         .catch(err => reject(err));
-    //     };
-    //
-    //     checkIt();
-    //   });
     //   let result;
-    //   await followUp
+    //   await getter.checker({
+    //     cacheId,
+    //     status: 202
+    //   })
     //     .then(res => {
     //       result = res;
     //     })
