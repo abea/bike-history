@@ -84,7 +84,7 @@ async function init () {
       console.error('🚫⛈', err.error);
     });
 
-  const stationsPostOptions = {
+  const bikesPostOptions = {
     method: 'POST',
     uri: `${process.env.ROOT_URL}/api/v1/post/stations`,
     body: {
@@ -95,11 +95,7 @@ async function init () {
   };
 
   // - Post the stations snapshot, with timestamp, to the stations route.
-  await postStations(stationsPostOptions);
-}
-
-async function postStations (options) {
-  return request(options)
+  await request(bikesPostOptions)
     .then(res => {
       if (!res) {
         throw Error('No result returned from bikes post request.');
@@ -108,7 +104,7 @@ async function postStations (options) {
 
       return res;
     })
-    .then(stationChecker)
+    .then(stationsChecker)
     .then(status => {
       // TODO: Remove this step or simplify logs once in production.
       if (status.status === 408) {
@@ -123,7 +119,7 @@ async function postStations (options) {
     });
 }
 
-async function stationChecker (status) {
+async function stationsChecker (status) {
   const statusId = status.cacheId;
 
   return new Promise((resolve, reject) => {
@@ -160,5 +156,5 @@ async function stationChecker (status) {
 
 module.exports = {
   init,
-  postStations
+  stationsChecker
 };

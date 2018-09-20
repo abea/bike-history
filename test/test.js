@@ -8,12 +8,11 @@ require('../models/Weather');
 require('../models/Cache');
 const sampleWeather = require('../sample-data/weather-dump.json');
 const sampleStations = require('../sample-data/indego-dump.json');
-const getter = require('../scripts/get-data');
+const {stationsChecker} = require('../scripts/get-data');
 const express = require('express');
 const routes = require('../routes/index');
 const bodyParser = require('body-parser');
 const app = express();
-// const moment = require('moment-timezone');
 let server;
 
 require('dotenv').config({ path: `${__dirname}/../variables.env` });
@@ -68,7 +67,7 @@ describe('Database', function() {
   });
 
   describe('Weather Post', function() {
-    it('should receive a 200 response.', async () => {
+    it('should receive a 201 response.', async () => {
       let result = {};
       const timestamp = (new Date()).toISOString();
 
@@ -90,12 +89,15 @@ describe('Database', function() {
           console.error(err.error);
         });
 
-      expect(result.status).to.equal(200);
+      expect(result.status).to.equal(201);
     });
   });
 
   describe('Stations Post', function() {
+    let cacheId = '';
+
     it('should initially receive a 202 response.', async () => {
+      let result = {};
       const timestamp = (new Date()).toISOString();
 
       const stationsPostOptions = {
@@ -103,78 +105,39 @@ describe('Database', function() {
         uri: `${process.env.ROOT_URL}/api/v1/post/stations`,
         body: {
           timestamp,
-          stations: sampleStations
+          stations: sampleStations.features
         },
         json: true
       };
 
-      const result = await getter.postStations(stationsPostOptions)
-        // .then(res => {
-        //   result = res;
-        //   cacheId = result.cacheId;
-        // })
+      await request(stationsPostOptions)
+        .then(res => {
+          result = res;
+          cacheId = result.cacheId;
+        })
         .catch(err => {
           console.error(err.error);
         });
 
       expect(result.status).to.equal(202);
-    }).timeout(120000);
-    //
-    // it('should check the cache and eventually receive a 200 response.', async () => {
-    //   let result;
-    //   await getter.checker({
-    //     cacheId,
-    //     status: 202
-    //   })
-    //     .then(res => {
-    //       result = res;
-    //     })
-    //     .catch(err => {
-    //       console.error(err.error);
-    //     });
-    //
-    //   expect(result.status).to.equal(200);
-    // }).timeout(60000);
-  });
+    });
 
-  // describe('Cache route', function() {
-  //   it('should receive a report of number of stations updated if complete', async () => {
-  //     const resPattern = /Saved and\/or updated \d* stations/;
-  //     function getRandomInt(max) {
-  //       return Math.floor(Math.random() * Math.floor(max));
-  //     };
-  //     let random = getRandomInt(10000000000).toString();
-  //
-  //     await (new Cache({
-  //       _id: random,
-  //       count: 42
-  //     })).save();
-  //
-  //     const cacheCheckOptions = {
-  //       uri: `${process.env.ROOT_URL}/api/v1/get/bike-processing/${random}`,
-  //       method: 'GET',
-  //       json: true
-  //     };
-  //
-  //     const cacheCheck = await request(cacheCheckOptions);
-  //     expect(cacheCheck.message).to.match(resPattern);
-  //   });
-  //
-  //   it('should have data on the docs for the hour sent.', async () => {
-  //     const stations = sampleStations.features;
-  //     // Get a random station index from the dump.
-  //     const station = stations[Math.floor(Math.random() * stations.length)];
-  //     const kioskId = station.properties.kioskId;
-  //     const timestamp = (new Date()).toISOString();
-  //     const datestamp = moment(timestamp).tz("America/New_York").format('YYYY-MM-DD');
-  //     const hour = (new Date(timestamp)).getHours();
-  //     const docId = `${kioskId}~${datestamp}`;
-  //     // Grab random station day document.
-  //     const saved = await StationDay.findOne({ _id: docId });
-  //
-  //     expect(saved.hours[hour].properties.kioskId).to.equal(kioskId);
-  //   });
-  // });
+    it('should check the cache and eventually receive a 201 response.', async () => {
+      let result;
+      await stationsChecker({
+        cacheId,
+        status: 202
+      })
+        .then(res => {
+          result = res;
+        })
+        .catch(err => {
+          console.error(err.error);
+        });
+
+      expect(result.status).to.equal(201);
+    }).timeout(120000);
+  });
 
   // After all tests are finished drop database and close connection
   after(function(done) {

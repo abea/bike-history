@@ -55,8 +55,8 @@ exports.saveWeather = async (req, res) => {
         }
       }
 
-      res.status(200).send({
-        status: 200,
+      res.status(201).send({
+        status: 201,
         message: `Document with _id ${doc._id} has been saved.`
       });
     });
@@ -85,8 +85,8 @@ exports.saveWeather = async (req, res) => {
   );
 
   if (updated._id) {
-    res.status(200).send({
-      status: 200,
+    res.status(201).send({
+      status: 201,
       message: `Document with _id ${updated._id} has been saved.`
     });
   } else {
