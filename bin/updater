@@ -1,3 +1,3 @@
 #!/usr/bin/env node
-const update = require('../scripts/get-data');
+const update = require('../scripts/get-data').init;
 update();

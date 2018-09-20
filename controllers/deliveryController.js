@@ -2,14 +2,19 @@ const moment = require('moment-timezone');
 
 exports.returnResults = (req, res) => {
   const results = {};
+
   if (req.at && req.weather) {
     // Look for either req.station or req.stations
     results.at = utcToEst(req.at);
     results.weather = req.weather;
-    if (req.station) {
+
+    if (req.station && Object.keys(results.station).length > 0) {
       results.station = req.station;
-    } else if (req.stations) {
+    } else if (req.stations && req.stations.length > 0) {
       results.stations = req.stations;
+    } else {
+      delete results.weather;
+      req.statusCode = 202;
     }
   } else if (req.weathers && req.stationHours) {
     results.data = [];
@@ -21,7 +26,11 @@ exports.returnResults = (req, res) => {
         station: req.stationHours[time]
       });
     }
+
+    if (results.data.length === 0) { req.statusCode = 202; }
   }
+
+  results.statusCode = req.statusCode ? req.statusCode : 200;
 
   if (req.errors) {
     results.errors = req.errors;

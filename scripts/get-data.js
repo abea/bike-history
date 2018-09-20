@@ -37,6 +37,7 @@ function getBikes () {
     });
 }
 
+// Function to check if the bike stations are done saving.
 function checkBikes (id) {
   return request({
     uri: `${process.env.ROOT_URL}/api/v1/get/bike-processing/${id}`,
@@ -73,19 +74,19 @@ async function init () {
   // - Post the weather snapshot, with timestamp, to the weather route.
   await request(weatherPostOptions)
     .then(res => {
-      if (!res._id) {
-        throw Error('No document returned from weather post request.');
+      if (res.status !== 201) {
+        throw Error(res);
       }
 
       return null;
     })
     .catch(err => {
-      console.error('🚫⛈', err.error);
+      console.error('🚫⛈', err.message || err);
     });
 
   const bikesPostOptions = {
     method: 'POST',
-    uri: `${process.env.ROOT_URL}/api/v1/post/bikes`,
+    uri: `${process.env.ROOT_URL}/api/v1/post/stations`,
     body: {
       timestamp,
       stations
@@ -93,7 +94,6 @@ async function init () {
     json: true
   };
 
-  let statusId;
   // - Post the stations snapshot, with timestamp, to the stations route.
   await request(bikesPostOptions)
     .then(res => {
@@ -104,40 +104,7 @@ async function init () {
 
       return res;
     })
-    .then(async status => {
-      statusId = status.cacheId;
-
-      return new Promise((resolve, reject) => {
-        if (status.status === 201) {
-          return resolve(status);
-        }
-
-        let checks = 0;
-
-        const checkIt = function() {
-          checks++;
-
-          checkBikes(statusId)
-            .then(res => {
-              if (res.status === 201) {
-                resolve(res);
-              } else if (checks > 15) {
-                status = {
-                  status: 408,
-                  message: 'Station processing timeout.'
-                };
-                resolve(status);
-              } else {
-                console.info('🚲', res.message);
-                setTimeout(checkIt, 10000);
-              }
-            })
-            .catch(err => reject(err));
-        };
-
-        checkIt();
-      });
-    })
+    .then(stationsChecker)
     .then(status => {
       // TODO: Remove this step or simplify logs once in production.
       if (status.status === 408) {
@@ -152,4 +119,42 @@ async function init () {
     });
 }
 
-module.exports = init;
+async function stationsChecker (status) {
+  const statusId = status.cacheId;
+
+  return new Promise((resolve, reject) => {
+    if (status.status === 201) {
+      return resolve(status);
+    }
+
+    let checks = 0;
+
+    const checkIt = function() {
+      checks++;
+
+      checkBikes(statusId)
+        .then(res => {
+          if (res.status === 201) {
+            resolve(res);
+          } else if (checks > 15) {
+            status = {
+              status: 408,
+              message: 'Station processing timeout.'
+            };
+            resolve(status);
+          } else {
+            console.info('🚲', res.message);
+            setTimeout(checkIt, 10000);
+          }
+        })
+        .catch(err => reject(err));
+    };
+
+    checkIt();
+  });
+}
+
+module.exports = {
+  init,
+  stationsChecker
+};

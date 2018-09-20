@@ -15,8 +15,14 @@ Using MongoDB, Node.js, Express, [Bluebird](https://npmjs.org/package/bluebird),
 - [X] App API supports the following queries at a minimum:
   - [X] Snapshot of all stations at a specified time (`/api/v1/stations?at=2017-11-01T11:00:00`)
   - [X] Snapshot of one station at a specific time (`/api/v1/stations/KIOSKIDGOESHERE?at=2017-11-01T11:00:00`)
-  - [ ] Snapshots of one station over a range of times  (`/api/v1/stations/KIOSKIDGOESHERE?from=2017-11-01T11:00:00&to=2017-12-01T11:00:00&frequency=daily`)
+  - [X] Snapshots of one station over a range of times  (`/api/v1/stations/KIOSKIDGOESHERE?from=2017-11-01T11:00:00&to=2017-12-01T11:00:00&frequency=daily`)
 - [ ] App should have mocha tests built for all requirements
+  - [ ] Storing indego and weather data
+  - [ ] Downloading once per hour ???
+  - [ ] Providing API for data
+  - [ ] All station at time query
+  - [ ] One station at time query
+  - [ ] One station over time span query
 - [X] App is hosted and accessible publicly
 - [ ] Extra credit: Implement Vue front end with data visualization
 
