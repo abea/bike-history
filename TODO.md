@@ -1,4 +1,3 @@
-- [ ] Update tests for status check requests.
 - [ ] Make all API responses more consistent.
   - Error objects in req.errors array with `code` and `message` properties.
 - [ ] Add pagination to API response
@@ -18,3 +17,4 @@
 - [X] Make sure queried times are converted to UTC for Mongo query.
 - [X] Convert the UTC ISO string timestamps back to EST for API output.
 - [X] Add `daily/hourly` frequency flag options
+- [X] Update tests for status check requests.
