@@ -8,6 +8,11 @@
 ### Goal
 Using MongoDB, Node.js, Express, [Bluebird](https://npmjs.org/package/bluebird), Lodash and the Linux, Node.js and MongoDB hosting of your choice (see below for hosting details including free options), **create a new API server which accumulates data over time and provides access to historical data for both weather and Indego bike availability, supporting the following queries at minimum.** Note that it is sufficient to store data at hourly intervals.
 
+### Live app info:
+- URL: https://indego-history.herokuapp.com/
+
+Fully formed data is available starting 2018-09-17T09:00.
+
 ## Requirements
 - [X] App stores Indego and weather data
 - [X] App downloads fresh Indego and weather data once per hour
@@ -16,13 +21,13 @@ Using MongoDB, Node.js, Express, [Bluebird](https://npmjs.org/package/bluebird),
   - [X] Snapshot of all stations at a specified time (`/api/v1/stations?at=2017-11-01T11:00:00`)
   - [X] Snapshot of one station at a specific time (`/api/v1/stations/KIOSKIDGOESHERE?at=2017-11-01T11:00:00`)
   - [X] Snapshots of one station over a range of times  (`/api/v1/stations/KIOSKIDGOESHERE?from=2017-11-01T11:00:00&to=2017-12-01T11:00:00&frequency=daily`)
-- [ ] App should have mocha tests built for all requirements
+- [X] App should have mocha tests built for all requirements
   - [X] Storing indego and weather data
   - [ ] Downloading once per hour ???
-  - [ ] Providing API for data
-    - [ ] All station at time query
-    - [ ] One station at time query
-    - [ ] One station over time span query
+  - [X] Providing API for data
+    - [X] All station at time query
+    - [X] One station at time query
+    - [X] One station over time span query
 - [X] App is hosted and accessible publicly
 - [ ] Extra credit: Implement Vue front end with data visualization
 
