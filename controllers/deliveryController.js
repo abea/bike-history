@@ -8,7 +8,7 @@ exports.returnResults = (req, res) => {
     results.at = utcToEst(req.at);
     results.weather = req.weather;
 
-    if (req.station && Object.keys(results.station).length > 0) {
+    if (req.station && Object.keys(req.station).length > 0) {
       results.station = req.station;
     } else if (req.stations && req.stations.length > 0) {
       results.stations = req.stations;
