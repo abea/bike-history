@@ -161,14 +161,14 @@ describe('Database', function() {
         uri: `${process.env.ROOT_URL}/api/v1/get/stations/${station}?at=${time}`,
         json: true
       };
-      const newResult = await request(getOptions)
+      const result = await request(getOptions)
         .catch(err => {
-          console.error(err.error);
+          console.error(err.errors);
         });
 
-      expect(newResult.statusCode).to.equal(200);
-      expect(newResult.weather.cod).to.equal(200);
-      expect(newResult.station.properties.kioskId).to.equal(station);
+      expect(result.statusCode).to.equal(200);
+      expect(result.weather.cod).to.equal(200);
+      expect(result.station.properties.kioskId).to.equal(station);
     });
 
     it('should return one weather and multple stations.', async () => {
@@ -178,14 +178,14 @@ describe('Database', function() {
         uri: `${process.env.ROOT_URL}/api/v1/get/stations?at=${time}`,
         json: true
       };
-      const newResult = await request(getOptions)
+      const result = await request(getOptions)
         .catch(err => {
-          console.error(err.error);
+          console.error(err.errors);
         });
 
-      expect(newResult.statusCode).to.equal(200);
-      expect(newResult.weather.cod).to.equal(200);
-      expect(newResult.stations).to.have.lengthOf(129);
+      expect(result.statusCode).to.equal(200);
+      expect(result.weather.cod).to.equal(200);
+      expect(result.stations).to.have.lengthOf(129);
     });
 
     it('should return an array of 24 weather and station objects.', async () => {
@@ -199,7 +199,7 @@ describe('Database', function() {
       };
       const result = await request(getOptions)
         .catch(err => {
-          console.error(err);
+          console.error(err.errors);
         });
 
       expect(result.statusCode).to.equal(200);
@@ -217,7 +217,7 @@ describe('Database', function() {
       };
       const result = await request(getOptions)
         .catch(err => {
-          console.error(err);
+          console.error(err.errors);
         });
 
       expect(result.statusCode).to.equal(200);
