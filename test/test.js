@@ -139,6 +139,39 @@ describe('Database', function() {
     }).timeout(120000);
   });
 
+  describe('API requests', function () {
+    before((done) => {
+      const exec = require('child_process').exec;
+      // Load dump from 2018-09-21
+      const command = 'mongorestore -h localhost -d post_test --drop ./sample-data/indego';
+      exec(command, (err, stdout, stderr) => {
+        if (err) {
+          return done(err);
+        }
+
+        done();
+      });
+    });
+
+    it('should return one weather and station object.', async () => {
+      const station = 3122;
+      const time = '2018-09-20T01:00';
+      const getOptions = {
+        method: 'GET',
+        uri: `${process.env.ROOT_URL}/api/v1/get/stations/${station}?at=${time}`,
+        json: true
+      };
+      const newResult = await request(getOptions)
+        .catch(err => {
+          console.error(err.error);
+        });
+
+      expect(newResult.statusCode).to.equal(200);
+      expect(newResult.weather.cod).to.equal(200);
+      expect(newResult.station.properties.kioskId).to.equal(station);
+    });
+  });
+
   // After all tests are finished drop database and close connection
   after(function(done) {
     server.close();
