@@ -139,6 +139,92 @@ describe('Database', function() {
     }).timeout(120000);
   });
 
+  describe('API requests', function () {
+    before((done) => {
+      const exec = require('child_process').exec;
+      // Load dump from 2018-09-21
+      const command = 'mongorestore -h localhost -d post_test --drop ./sample-data/indego';
+      exec(command, (err, stdout, stderr) => {
+        if (err) {
+          return done(err);
+        }
+
+        done();
+      });
+    });
+
+    it('should return one weather and station object.', async () => {
+      const station = 3122;
+      const time = '2018-09-20T01:00';
+      const getOptions = {
+        method: 'GET',
+        uri: `${process.env.ROOT_URL}/api/v1/get/stations/${station}?at=${time}`,
+        json: true
+      };
+      const result = await request(getOptions)
+        .catch(err => {
+          console.error(err.errors);
+        });
+
+      expect(result.statusCode).to.equal(200);
+      expect(result.weather.cod).to.equal(200);
+      expect(result.station.properties.kioskId).to.equal(station);
+    });
+
+    it('should return one weather and multple stations.', async () => {
+      const time = '2018-09-20T08:00';
+      const getOptions = {
+        method: 'GET',
+        uri: `${process.env.ROOT_URL}/api/v1/get/stations?at=${time}`,
+        json: true
+      };
+      const result = await request(getOptions)
+        .catch(err => {
+          console.error(err.errors);
+        });
+
+      expect(result.statusCode).to.equal(200);
+      expect(result.weather.cod).to.equal(200);
+      expect(result.stations).to.have.lengthOf(129);
+    });
+
+    it('should return an array of 24 weather and station objects.', async () => {
+      const station = 3122;
+      const startTime = '2018-09-20T00:00';
+      const endTime = '2018-09-21T00:00';
+      const getOptions = {
+        method: 'GET',
+        uri: `${process.env.ROOT_URL}/api/v1/get/stations/${station}?from=${startTime}&to=${endTime}`,
+        json: true
+      };
+      const result = await request(getOptions)
+        .catch(err => {
+          console.error(err.errors);
+        });
+
+      expect(result.statusCode).to.equal(200);
+      expect(result.data).to.have.lengthOf(24);
+    });
+
+    it('should return an array of 2 weather and station objects.', async () => {
+      const station = 3122;
+      const startTime = '2018-09-19T00:00';
+      const endTime = '2018-09-21T00:00';
+      const getOptions = {
+        method: 'GET',
+        uri: `${process.env.ROOT_URL}/api/v1/get/stations/${station}?from=${startTime}&to=${endTime}&frequency=daily`,
+        json: true
+      };
+      const result = await request(getOptions)
+        .catch(err => {
+          console.error(err.errors);
+        });
+
+      expect(result.statusCode).to.equal(200);
+      expect(result.data).to.have.lengthOf(2);
+    });
+  });
+
   // After all tests are finished drop database and close connection
   after(function(done) {
     server.close();

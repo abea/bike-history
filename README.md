@@ -17,12 +17,12 @@ Using MongoDB, Node.js, Express, [Bluebird](https://npmjs.org/package/bluebird),
   - [X] Snapshot of one station at a specific time (`/api/v1/stations/KIOSKIDGOESHERE?at=2017-11-01T11:00:00`)
   - [X] Snapshots of one station over a range of times  (`/api/v1/stations/KIOSKIDGOESHERE?from=2017-11-01T11:00:00&to=2017-12-01T11:00:00&frequency=daily`)
 - [ ] App should have mocha tests built for all requirements
-  - [ ] Storing indego and weather data
+  - [X] Storing indego and weather data
   - [ ] Downloading once per hour ???
   - [ ] Providing API for data
-  - [ ] All station at time query
-  - [ ] One station at time query
-  - [ ] One station over time span query
+    - [ ] All station at time query
+    - [ ] One station at time query
+    - [ ] One station over time span query
 - [X] App is hosted and accessible publicly
 - [ ] Extra credit: Implement Vue front end with data visualization
 
