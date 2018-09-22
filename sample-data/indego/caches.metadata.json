@@ -1,0 +1,1 @@
+{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"indego.caches"},{"v":2,"key":{"createdAt":1},"name":"createdAt_1","ns":"indego.caches","expireAfterSeconds":600,"background":true}],"uuid":"4e1b673aadba4fdc9efda2a202960570"}
