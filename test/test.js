@@ -170,6 +170,23 @@ describe('Database', function() {
       expect(newResult.weather.cod).to.equal(200);
       expect(newResult.station.properties.kioskId).to.equal(station);
     });
+
+    it('should return one weather and multple stations.', async () => {
+      const time = '2018-09-20T08:00';
+      const getOptions = {
+        method: 'GET',
+        uri: `${process.env.ROOT_URL}/api/v1/get/stations?at=${time}`,
+        json: true
+      };
+      const newResult = await request(getOptions)
+        .catch(err => {
+          console.error(err.error);
+        });
+
+      expect(newResult.statusCode).to.equal(200);
+      expect(newResult.weather.cod).to.equal(200);
+      expect(newResult.stations).to.have.lengthOf(129);
+    });
   });
 
   // After all tests are finished drop database and close connection
