@@ -5,9 +5,10 @@ const bikesController = require('../controllers/bikesController');
 const deliveryController = require('../controllers/deliveryController');
 const {catchErrors} = require('../handlers/errorHandlers');
 const indegoDump = require('../sample-data/indego-dump.json');
+const path = require('path');
 
 router.get('/', (req, res) => {
-  res.send('Bike more.');
+  res.sendFile(path.join(__dirname + '/../index.html'));
 });
 
 router.post('/api/v1/post/weather',
