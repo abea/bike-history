@@ -6,6 +6,7 @@ const moment = require('moment-timezone');
 const h = require('../helpers');
 let savingMessage = 'Stations saving...';
 let finishedCount = 0; // TODO: Remove this and the logs once in production.
+const bluebird = require('bluebird');
 
 exports.saveStations = async (req, res) => {
   const stations = req.body.stations;
@@ -22,14 +23,15 @@ exports.saveStations = async (req, res) => {
     cacheId
   });
 
-  const bikePromises = await collectPromises({
-    array: stations,
-    dayStamp,
-    timestamp
+  const stationData = await bluebird.map(stations, (station) => {
+    return processStation({
+      station,
+      dayStamp: dayStamp,
+      timestamp: timestamp
+    });
+  }, {
+    concurrency: 5
   });
-
-  const stationData = await Promise.all(bikePromises);
-
   await Cache.findOneAndUpdate(
     { _id: cacheId },
     {
@@ -193,20 +195,6 @@ const updateOld = function (data) {
       returnNewDocument: true
     }
   );
-};
-
-const collectPromises = data => {
-  return new Promise((resolve, reject) => {
-    const promises = data.array.map((station, index) => {
-      return processStation({
-        station,
-        dayStamp: data.dayStamp,
-        timestamp: data.timestamp
-      });
-    });
-
-    resolve(promises);
-  });
 };
 
 async function getStationsAt (q) {
