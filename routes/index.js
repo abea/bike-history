@@ -24,13 +24,13 @@ router.get('/api/v1/get/bike-processing/:cacheId',
   bikesController.getPostStatus
 );
 
-router.get('/api/v1/get/stations',
+router.get('/api/v1/stations',
   catchErrors(weatherController.returnWeather),
   catchErrors(bikesController.returnStations),
   deliveryController.returnResults
 );
 
-router.get('/api/v1/get/stations/:kioskId',
+router.get('/api/v1/stations/:kioskId',
   catchErrors(weatherController.returnWeather),
   catchErrors(bikesController.returnStations),
   deliveryController.returnResults

@@ -158,7 +158,7 @@ describe('Database', function() {
       const time = '2018-09-20T01:00';
       const getOptions = {
         method: 'GET',
-        uri: `${process.env.ROOT_URL}/api/v1/get/stations/${station}?at=${time}`,
+        uri: `${process.env.ROOT_URL}/api/v1/stations/${station}?at=${time}`,
         json: true
       };
       const result = await request(getOptions)
@@ -175,7 +175,7 @@ describe('Database', function() {
       const time = '2018-09-20T08:00';
       const getOptions = {
         method: 'GET',
-        uri: `${process.env.ROOT_URL}/api/v1/get/stations?at=${time}`,
+        uri: `${process.env.ROOT_URL}/api/v1/stations?at=${time}`,
         json: true
       };
       const result = await request(getOptions)
@@ -194,7 +194,7 @@ describe('Database', function() {
       const endTime = '2018-09-21T00:00';
       const getOptions = {
         method: 'GET',
-        uri: `${process.env.ROOT_URL}/api/v1/get/stations/${station}?from=${startTime}&to=${endTime}`,
+        uri: `${process.env.ROOT_URL}/api/v1/stations/${station}?from=${startTime}&to=${endTime}`,
         json: true
       };
       const result = await request(getOptions)
@@ -212,7 +212,7 @@ describe('Database', function() {
       const endTime = '2018-09-21T00:00';
       const getOptions = {
         method: 'GET',
-        uri: `${process.env.ROOT_URL}/api/v1/get/stations/${station}?from=${startTime}&to=${endTime}&frequency=daily`,
+        uri: `${process.env.ROOT_URL}/api/v1/stations/${station}?from=${startTime}&to=${endTime}&frequency=daily`,
         json: true
       };
       const result = await request(getOptions)

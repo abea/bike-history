@@ -93,7 +93,7 @@ exports.returnStations = async (req, res, next) => {
 
     req.errors.push({
       code: 422,
-      message: 'Stations query invalid. You must include a date-formatted "at" query string or "from" and "to" query strings (the former being before the latter). If querying a time span, the kiosk ID must be included (e.g., /api/v1/get/stations/:kioskId?from=[a date]&to=[a date]).'
+      message: 'Stations query invalid. You must include a date-formatted "at" query string or "from" and "to" query strings (the former being before the latter). If querying a time span, the kiosk ID must be included (e.g., /api/v1/stations/:kioskId?from=[a date]&to=[a date]).'
     });
   }
 
