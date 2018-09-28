@@ -156,7 +156,7 @@ const saveStationDay = async function (data) {
   }
 };
 
-const saveNew = function (data) {
+const saveNew = async function (data) {
   const newData = {};
 
   newData._id = data.docId;
@@ -173,13 +173,13 @@ const saveNew = function (data) {
   newData.hours[data.hour] = data.station;
 
   const newDay = new StationDay(newData);
-  return newDay.save();
+  await newDay.save();
 };
 
-const updateOld = function (data) {
+const updateOld = async function (data) {
   const field = `hours.${data.hour}`;
 
-  return StationDay.findOneAndUpdate(
+  await StationDay.findOneAndUpdate(
     {
       _id: data.docId
     },
