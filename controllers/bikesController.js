@@ -22,13 +22,13 @@ exports.saveStations = async (req, res) => {
     cacheId
   });
 
-  const bikePromises = await collectPromises({
-    array: stations,
-    dayStamp,
-    timestamp
-  });
-
-  const stationData = await Promise.all(bikePromises);
+  const stationData = await Promise.all(stations.map((station) => {
+    return processStation({
+      station,
+      dayStamp,
+      timestamp
+    });
+  }));
 
   await Cache.findOneAndUpdate(
     { _id: cacheId },
@@ -93,7 +93,7 @@ exports.returnStations = async (req, res, next) => {
 
     req.errors.push({
       code: 422,
-      message: 'Stations query invalid. You must include a date-formatted "at" query string or "from" and "to" query strings (the former being before the latter). If querying a time span, the kiosk ID must be included (e.g., /api/v1/get/stations/:kioskId?from=[a date]&to=[a date]).'
+      message: 'Stations query invalid. You must include a date-formatted "at" query string or "from" and "to" query strings (the former being before the latter). If querying a time span, the kiosk ID must be included (e.g., /api/v1/stations/:kioskId?from=[a date]&to=[a date]).'
     });
   }
 
@@ -156,7 +156,7 @@ const saveStationDay = async function (data) {
   }
 };
 
-const saveNew = function (data) {
+const saveNew = async function (data) {
   const newData = {};
 
   newData._id = data.docId;
@@ -173,13 +173,13 @@ const saveNew = function (data) {
   newData.hours[data.hour] = data.station;
 
   const newDay = new StationDay(newData);
-  return newDay.save();
+  await newDay.save();
 };
 
-const updateOld = function (data) {
+const updateOld = async function (data) {
   const field = `hours.${data.hour}`;
 
-  return StationDay.findOneAndUpdate(
+  await StationDay.findOneAndUpdate(
     {
       _id: data.docId
     },
@@ -193,20 +193,6 @@ const updateOld = function (data) {
       returnNewDocument: true
     }
   );
-};
-
-const collectPromises = data => {
-  return new Promise((resolve, reject) => {
-    const promises = data.array.map((station, index) => {
-      return processStation({
-        station,
-        dayStamp: data.dayStamp,
-        timestamp: data.timestamp
-      });
-    });
-
-    resolve(promises);
-  });
 };
 
 async function getStationsAt (q) {

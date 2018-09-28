@@ -72,7 +72,7 @@ async function init () {
   };
 
   // - Post the weather snapshot, with timestamp, to the weather route.
-  await request(weatherPostOptions)
+  request(weatherPostOptions)
     .then(res => {
       if (res.status !== 201) {
         throw Error(res);
@@ -95,7 +95,7 @@ async function init () {
   };
 
   // - Post the stations snapshot, with timestamp, to the stations route.
-  await request(bikesPostOptions)
+  request(bikesPostOptions)
     .then(res => {
       if (!res) {
         throw Error('No result returned from bikes post request.');
@@ -119,7 +119,7 @@ async function init () {
     });
 }
 
-async function stationsChecker (status) {
+function stationsChecker (status) {
   const statusId = status.cacheId;
 
   return new Promise((resolve, reject) => {
