@@ -22,10 +22,12 @@ exports.saveStations = async (req, res) => {
     cacheId
   });
 
-  const bikePromises = await collectPromises({
-    array: stations,
-    dayStamp,
-    timestamp
+  const bikePromises = stations.map((station, index) => {
+    return processStation({
+      station,
+      dayStamp: dayStamp,
+      timestamp: timestamp
+    });
   });
 
   const stationData = await Promise.all(bikePromises);
@@ -193,20 +195,6 @@ const updateOld = function (data) {
       returnNewDocument: true
     }
   );
-};
-
-const collectPromises = data => {
-  return new Promise((resolve, reject) => {
-    const promises = data.array.map((station, index) => {
-      return processStation({
-        station,
-        dayStamp: data.dayStamp,
-        timestamp: data.timestamp
-      });
-    });
-
-    resolve(promises);
-  });
 };
 
 async function getStationsAt (q) {
