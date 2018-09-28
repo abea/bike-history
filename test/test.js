@@ -23,8 +23,8 @@ describe('Open Weather', function() {
   // NOTE: Probably unnecessary now.
   it('should receive a response from the weather API with key.', async () => {
     // Allow for running other tests offline
-    if (process.env.OFFLINE) {
-      expect(process.env.OFFLINE).to.equal('true');
+    if (process.env.OFFLINE_TEST) {
+      expect(process.env.OFFLINE_TEST).to.equal('true');
       return;
     }
     const reqOptions = {
