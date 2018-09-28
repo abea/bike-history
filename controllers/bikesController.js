@@ -22,13 +22,13 @@ exports.saveStations = async (req, res) => {
     cacheId
   });
 
-  const bikePromises = await collectPromises({
-    array: stations,
-    dayStamp,
-    timestamp
-  });
-
-  const stationData = await Promise.all(bikePromises);
+  const stationData = await Promise.all(stations.map((station) => {
+    return processStation({
+      station,
+      dayStamp,
+      timestamp
+    });
+  }));
 
   await Cache.findOneAndUpdate(
     { _id: cacheId },
@@ -193,20 +193,6 @@ const updateOld = function (data) {
       returnNewDocument: true
     }
   );
-};
-
-const collectPromises = data => {
-  return new Promise((resolve, reject) => {
-    const promises = data.array.map((station, index) => {
-      return processStation({
-        station,
-        dayStamp: data.dayStamp,
-        timestamp: data.timestamp
-      });
-    });
-
-    resolve(promises);
-  });
 };
 
 async function getStationsAt (q) {
