@@ -48,20 +48,18 @@ exports.saveWeather = async (req, res) => {
     data.hours[hour] = req.body.weather;
 
     // Then save the new document.
-    await (new Weather(data)).save((err, doc) => {
-      if (err) {
-        for (const key in err.errors) {
-          throw Error(err.errors[key].message);
-        }
+    const doc = await (new Weather(data)).save();
+
+    if (doc.errors) {
+      for (const key in doc.errors) {
+        throw Error(doc.errors[key].message);
       }
+    }
 
-      res.status(201).send({
-        status: 201,
-        message: `Document with _id ${doc._id} has been saved.`
-      });
+    return res.status(201).send({
+      status: 201,
+      message: `Document with _id ${doc._id} has been saved.`
     });
-
-    return;
   }
 
   // If so, update the document with the weather at that hour.
