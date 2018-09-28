@@ -22,6 +22,11 @@ const weatherUrl = 'http://api.openweathermap.org/data/2.5/weather';
 describe('Open Weather', function() {
   // NOTE: Probably unnecessary now.
   it('should receive a response from the weather API with key.', async () => {
+    // Allow for running other tests offline
+    if (process.env.OFFLINE) {
+      expect(process.env.OFFLINE).to.equal('true');
+      return;
+    }
     const reqOptions = {
       uri: `${weatherUrl}?appid=${process.env.WEATHER_KEY}&id=${process.env.WEATHER_CITY_ID}`,
       json: true
