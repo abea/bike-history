@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // Import environment variables.
-require('dotenv').config({ path: 'variables.env' });
+require('dotenv').config({ path: './variables.env' });
 
 mongoose.connect(process.env.DATABASE, {
   // Repond to mongoose warning about deprecated URL parser.
