@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // Import environment variables.
-require('dotenv').config({ path: 'variables.env' });
+require('dotenv').config({ path: './variables.env' });
 
 mongoose.connect(process.env.DATABASE, {
   // Repond to mongoose warning about deprecated URL parser.
@@ -13,11 +13,11 @@ mongoose.connection.on('error', (err) => {
 });
 
 // Data models.
-require('./server/models/StationDay');
-require('./server/models/Weather');
-require('./server/models/Cache');
+require('./models/StationDay');
+require('./models/Weather');
+require('./models/Cache');
 
-const app = require('./server/app');
+const app = require('./app');
 app.set('port', process.env.PORT || 7777);
 
 const server = app.listen(app.get('port'), () => {

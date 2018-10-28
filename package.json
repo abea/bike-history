@@ -5,8 +5,8 @@
   "main": "app.js",
   "scripts": {
     "pretest": "eslint --ignore-path .gitignore .",
-    "start": "node start",
-    "dev": "nodemon start --exec 'npm run pretest && node'",
+    "start": "node ./server/start",
+    "dev": "nodemon ./server/start --exec 'npm run pretest && node'",
     "test": "mocha",
     "updater": "node ./bin/updater"
   },
