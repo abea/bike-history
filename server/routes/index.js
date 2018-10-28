@@ -8,7 +8,7 @@ const indegoDump = require('../sample-data/indego-dump.json');
 const path = require('path');
 
 router.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname + '/../index.html'));
+  res.sendFile(path.join(__dirname + '/../../index.html'));
 });
 
 router.post('/api/v1/post/weather',
