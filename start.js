@@ -13,11 +13,11 @@ mongoose.connection.on('error', (err) => {
 });
 
 // Data models.
-require('./models/StationDay');
-require('./models/Weather');
-require('./models/Cache');
+require('./server/models/StationDay');
+require('./server/models/Weather');
+require('./server/models/Cache');
 
-const app = require('./app');
+const app = require('./server/app');
 app.set('port', process.env.PORT || 7777);
 
 const server = app.listen(app.get('port'), () => {

@@ -3,14 +3,14 @@ const request = require('request-promise');
 const chai = require('chai');
 chai.use(require('chai-match'));
 const expect = chai.expect;
-require('../models/StationDay');
-require('../models/Weather');
-require('../models/Cache');
-const sampleWeather = require('../sample-data/weather-dump.json');
-const sampleStations = require('../sample-data/indego-dump.json');
+require('../server/models/StationDay');
+require('../server/models/Weather');
+require('../server/models/Cache');
+const sampleWeather = require('../server/sample-data/weather-dump.json');
+const sampleStations = require('../server/sample-data/indego-dump.json');
 const {stationsChecker} = require('../scripts/get-data');
 const express = require('express');
-const routes = require('../routes/index');
+const routes = require('../server/routes/index');
 const bodyParser = require('body-parser');
 const app = express();
 let server;
@@ -148,7 +148,7 @@ describe('Database', function() {
     before((done) => {
       const exec = require('child_process').exec;
       // Load dump from 2018-09-21
-      const command = 'mongorestore -h localhost -d post_test --drop ./sample-data/indego';
+      const command = 'mongorestore -h localhost -d post_test --drop ./server/sample-data/indego';
       exec(command, (err, stdout, stderr) => {
         if (err) {
           return done(err);
