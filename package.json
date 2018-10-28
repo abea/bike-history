@@ -1,6 +1,6 @@
 {
   "name": "abea-backend-challenge",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "P'unk Avenue Node.js Backend Challenge",
   "main": "app.js",
   "scripts": {
@@ -8,7 +8,10 @@
     "start": "node start",
     "dev": "nodemon start --exec 'npm run pretest && node'",
     "test": "mocha",
-    "updater": "node ./bin/updater"
+    "updater": "node ./bin/updater",
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
   },
   "repository": {
     "type": "git",
@@ -29,7 +32,9 @@
     "mongoose-mongodb-errors": "0.0.2",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "vue": "^2.5.17",
+    "vue-router": "^3.0.1"
   },
   "devDependencies": {
     "chai-match": "^1.1.1",
@@ -41,6 +46,11 @@
     "eslint-plugin-promise": "^3.8.0",
     "eslint-plugin-standard": "^3.1.0",
     "mocha": "^5.2.0",
-    "nodemon": "^1.18.4"
+    "nodemon": "^1.18.4",
+    "@vue/cli-plugin-babel": "^3.0.5",
+    "@vue/cli-plugin-eslint": "^3.0.5",
+    "@vue/cli-service": "^3.0.5",
+    "@vue/eslint-config-prettier": "^3.0.5",
+    "vue-template-compiler": "^2.5.17"
   }
 }
