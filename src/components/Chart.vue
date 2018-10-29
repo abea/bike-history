@@ -31,13 +31,23 @@
 </template>
 
 <script>
+import moment from 'moment';
+
+const initialMoment = moment().subtract({ hours: 1 });
+const initialDate = initialMoment.format('YYYY-MM-DD');
+const initialTime = initialMoment.format('HH:mm:SS');
+
 export default {
-  name: "HelloWorld",
+  name: 'Chart',
   props: {
     msg: String
+  },
+  data() {
+    return {
+      station: 3069,
+      date: initialDate,
+      time: initialTime
+    };
   }
 };
 </script>
-
-<style scoped>
-</style>
