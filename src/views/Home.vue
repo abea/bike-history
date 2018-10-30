@@ -1,16 +1,15 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <Chart msg="Welcome to Your Vue.js App"/>
+    <Chart/>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import Chart from "@/components/Chart.vue";
+import Chart from '@/components/Chart.vue';
 
 export default {
-  name: "home",
+  name: 'home',
   components: {
     Chart
   }
