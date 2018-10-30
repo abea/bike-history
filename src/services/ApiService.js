@@ -10,8 +10,18 @@ const apiClient = axios.create({
   }
 });
 
+const apiPath = '/api/v1/stations';
+
 export default {
   getOneSnap(opts) {
-    return apiClient.get(`/api/v1/stations/${opts.id}?at=${opts.time}`);
+    return apiClient.get(`${apiPath}/${opts.id}?at=${opts.time}`);
+  },
+  getOneSeries(opts) {
+    return apiClient.get(
+      `${apiPath}/${opts.id}?from=${opts.fromTime}&to=${opts.time}`
+    );
+  },
+  getAllSnap(opts) {
+    return apiClient.get(`${apiPath}?at=${opts.time}`);
   }
 };

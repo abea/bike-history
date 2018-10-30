@@ -1,6 +1,7 @@
 <template>
   <div class="home">
-    <Chart/>
+    <Chart mode="getOneSnap" />
+    <Chart mode="getOneSnap" />
   </div>
 </template>
 
