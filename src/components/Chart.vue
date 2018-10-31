@@ -1,20 +1,9 @@
-<template>
-  <section>
-    <!-- TODO: Work out displaying different mode results. -->
-    <p>Station {{stationId}} at {{ date }}T{{time}}</p>
-    <ul>
-      <li>total: {{ station.total }}</li>
-      <li>empty: {{ station.empty }}</li>
-      <li>available: {{ station.available }}</li>
-    </ul>
-  </section>
-</template>
-
 <script>
 import moment from 'moment';
 import ApiService from '@/services/ApiService';
+import { Pie } from 'vue-chartjs';
 
-const initialMoment = moment().subtract({ days: 3 });
+const initialMoment = moment().subtract({ days: 4 });
 const initialDate = initialMoment.format('YYYY-MM-DD');
 const initialTime = initialMoment.format('HH:mm:ss');
 const initialFrom = initialMoment.subtract({ days: 7 });
@@ -22,6 +11,7 @@ const initialFromDate = initialFrom.format('YYYY-MM-DD');
 const initialFromTime = initialFrom.format('HH:mm:ss');
 
 export default {
+  extends: Pie,
   name: 'Chart',
   props: {
     mode: String
@@ -69,6 +59,23 @@ export default {
           console.error('🚨', err);
           return {};
         });
+
+      this.renderChart(
+        {
+          labels: ['Empty Docks', 'Available Bikes'],
+          datasets: [
+            {
+              label: 'GitHub Commits',
+              backgroundColor: ['#639', '#369'],
+              data: [
+                this.station.empty,
+                this.station.available
+              ]
+            }
+          ]
+        },
+        {}
+      );
     }
   },
   created() {

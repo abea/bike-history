@@ -1,8 +1,8 @@
 <template>
-  <div class="home">
-    <Chart mode="getOneSnap" />
-    <Chart mode="getOneSnap" />
-  </div>
+  <main class="row justify-content-center">
+    <Chart mode="getOneSnap" class="col-sm-8 col-md-6"/>
+    <Chart mode="getOneSnap" class="col-sm-8 col-md-6"/>
+  </main>
 </template>
 
 <script>
