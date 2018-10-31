@@ -52,8 +52,6 @@ export default {
   },
   methods: {
     getInfo: async function(opts) {
-      let station = {};
-
       await ApiService[this.mode]({
         id: opts.id,
         time: `${opts.date}T${opts.time}`,
@@ -71,8 +69,6 @@ export default {
           console.error('🚨', err);
           return {};
         });
-
-      return station;
     }
   },
   created() {
