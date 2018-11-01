@@ -3,10 +3,10 @@ import moment from 'moment';
 import ApiService from '@/services/ApiService';
 import { Pie } from 'vue-chartjs';
 
-const initialMoment = moment().subtract({ days: 4 });
+const initialMoment = moment().subtract({ hours: 1 });
 const initialDate = initialMoment.format('YYYY-MM-DD');
 const initialTime = initialMoment.format('HH:mm:ss');
-const initialFrom = initialMoment.subtract({ days: 7 });
+const initialFrom = initialMoment.subtract({ hours: 25 });
 const initialFromDate = initialFrom.format('YYYY-MM-DD');
 const initialFromTime = initialFrom.format('HH:mm:ss');
 
@@ -66,11 +66,8 @@ export default {
           datasets: [
             {
               label: 'GitHub Commits',
-              backgroundColor: ['#639', '#369'],
-              data: [
-                this.station.empty,
-                this.station.available
-              ]
+              backgroundColor: ['#17a2b8', '#28a745'],
+              data: [this.station.empty, this.station.available]
             }
           ]
         },

@@ -1,5 +1,4 @@
 import axios from 'axios';
-// require('dotenv').config({ path: `${__dirname}../variables.env` });
 
 const apiClient = axios.create({
   baseURL: process.env.ROOT_URL || 'http://localhost:7777',
