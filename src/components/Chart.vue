@@ -19,10 +19,8 @@ export default {
   data() {
     return {
       stationId: 3069,
-      date: initialDate, // Used for the `to` value in series requests.
-      time: initialTime, // Used for the `to` value in series requests.
-      // TODO Switch the `date` and `time` to stand in for the `from` values.
-      // That feels more clear.
+      toDate: initialDate,
+      toTime: initialTime,
       fromDate: initialFromDate,
       fromTime: initialFromTime,
       station: {}
@@ -33,8 +31,8 @@ export default {
       return this.getInfo({
         mode: this.mode,
         id: this.stationId,
-        date: this.date,
-        time: this.time,
+        toDate: this.toDate,
+        toTime: this.toTime,
         fromDate: this.mode === 'getOneSeries' ? this.fromDate : null,
         fromTime: this.mode === 'getOneSeries' ? this.fromTime : null
       });
@@ -44,7 +42,7 @@ export default {
     getInfo: async function(opts) {
       await ApiService[this.mode]({
         id: opts.id,
-        time: `${opts.date}T${opts.time}`,
+        toTime: `${opts.toDate}T${opts.toTime}`,
         fromTime: `${opts.fromDate}T${opts.fromTime}`
       })
         .then(res => {
@@ -79,8 +77,8 @@ export default {
     this.getInfo({
       mode: this.mode,
       id: this.stationId,
-      date: this.date,
-      time: this.time,
+      toDate: this.toDate,
+      toTime: this.toTime,
       fromDate: this.mode === 'getOneSeries' ? this.fromDate : null,
       fromTime: this.mode === 'getOneSeries' ? this.fromTime : null
     });
