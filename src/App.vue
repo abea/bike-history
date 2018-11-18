@@ -1,6 +1,7 @@
 <template>
   <div id="app" class="container-fluid">
     <div class="row justify-content-center">
+      <h1 class="col-md-8">Indego History</h1>
       <ul class="nav col-md-8">
         <li class="nav-item">
           <router-link class="nav-link" to="/">Home</router-link>
