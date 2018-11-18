@@ -1,5 +1,6 @@
 <template>
-  <div class="about">
+  <div>
+    <h1>About</h1>
     <p>
       This app was created based on an interview challenge. Code at https://github.com/abea/bike-history. Data is available starting 2018-09-16.
     </p>

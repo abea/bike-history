@@ -2,7 +2,7 @@
   <section>
   <div class="card mb-3">
     <div class="card-header">
-      <strong>Date/Time:</strong> {{ toDate || 'Not set' }}<br/>
+      <strong>Date/Time:</strong> {{ toDate || 'Date not set' }}, {{ toTime || 'Time not set' }}<br/>
       <strong>Station:</strong> {{ station.addressStreet }}, {{ station.addressCity }} {{ station.addressState }} {{ station.addressZipCode }} (ID: {{ stationId }})
     </div>
     <div class="card-body">
