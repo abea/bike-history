@@ -3,9 +3,9 @@
     <p>
       This app was created based on an interview challenge. Code at https://github.com/abea/bike-history. Data is available starting 2018-09-16.
     </p>
-    <h2>The Goal</h2>
+    <h2>The Challenge</h2>
     <blockquote cite="https://github.com/punkave/backend-challenge">
-      Using MongoDB, Node.js, Express, <a href="https://npmjs.org/package/bluebird">Bluebird</a>, Lodash and the Linux, Node.js and MongoDB hosting of your choice (see below for hosting details including free options), **create a new API server which accumulates data over time and provides access to historical data for both weather and Indego bike availability, supporting the following queries at minimum.** Note that it is sufficient to store data at hourly intervals.
+      Using MongoDB, Node.js, Express, and the Linux, Node.js and MongoDB hosting of your choice (see below for hosting details including free options), <strong>create a new API server which accumulates data over time and provides access to historical data for both weather and Indego bike availability, supporting the following queries at minimum.</strong> Note that it is sufficient to store data at hourly intervals.
     </blockquote>
     <p>
       See requirements and more information at https://github.com/punkave/backend-challenge/blob/master/README.md.
