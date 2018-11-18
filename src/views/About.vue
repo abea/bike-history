@@ -12,7 +12,10 @@
     </p>
     <h2>The App</h2>
     <p>
-      The finish app is currently hosted at https://indego-history.herokuapp.com. There are three formats in which to request data:
+      The finish app is currently hosted at https://indego-history.herokuapp.com. There's a limited front-end created using Vue.js demonstrating a few elements of the overall API.
+    </p>
+    <p>
+      There are three formats in which to request data directly from the API:
     </p>
     <ul>
       <li>
