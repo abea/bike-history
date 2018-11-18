@@ -1,19 +1,25 @@
 <template>
-  <div class="about">
-    <Chart :station="station"/>
-    <form >
-      <label for="startDate">
-        Snapshot date
-        <input type="date" name="startDate" v-model="toDate">
-      </label>
-      <label for="startTime">
-        Snapshot time
-        <input type="time" name="startTime" v-model="toTime">
-      </label>
-      <input type="submit" value="Submit">
-    </form>
-    <p>Date: {{ toDate || 'Not set' }} | Time: {{ toTime || 'Not set' }}</p>
+  <section>
+  <div class="card mb-3">
+    <div class="card-header">
+      <strong>Date/Time:</strong> {{ toDate || 'Not set' }}<br/>
+      <strong>Station:</strong> {{ station.addressStreet }}, {{ station.addressCity }} {{ station.addressState }} {{ station.addressZipCode }} (ID: {{ stationId }})
+    </div>
+    <div class="card-body">
+      <Chart :station="station"/>
+      <form class="form-row">
+        <div class="form-group col">
+          <label class="" for="startDate">Snapshot date</label>
+          <input class="form-control" type="date" name="startDate" v-model="toDate">
+        </div>
+        <div class="form-group col">
+          <label for="startTime">Snapshot time</label>
+          <input class="form-control" type="time" name="startTime" v-model="toTime">
+        </div>
+      </form>
+    </div>
   </div>
+  </section>
 </template>
 
 <script>
