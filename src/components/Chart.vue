@@ -1,63 +1,23 @@
 <script>
-import moment from 'moment';
 import ApiService from '@/services/ApiService';
 import { Pie } from 'vue-chartjs';
-
-const initialMoment = moment().subtract({ hours: 1 });
-const initialDate = initialMoment.format('YYYY-MM-DD');
-const initialTime = initialMoment.format('HH:mm:ss');
-const initialFrom = initialMoment.subtract({ hours: 25 });
-const initialFromDate = initialFrom.format('YYYY-MM-DD');
-const initialFromTime = initialFrom.format('HH:mm:ss');
 
 export default {
   extends: Pie,
   name: 'Chart',
   props: {
-    mode: String
+    mode: String,
+    toDate: String,
+    toTime: String
   },
   data() {
     return {
       stationId: 3069,
-      toDate: initialDate,
-      toTime: initialTime,
-      fromDate: initialFromDate,
-      fromTime: initialFromTime,
       station: {}
     };
   },
   watch: {
-    stationId: function(newId, oldId) {
-      return this.getInfo({
-        mode: this.mode,
-        id: this.stationId,
-        toDate: this.toDate,
-        toTime: this.toTime,
-        fromDate: this.mode === 'getOneSeries' ? this.fromDate : null,
-        fromTime: this.mode === 'getOneSeries' ? this.fromTime : null
-      });
-    }
-  },
-  methods: {
-    getInfo: async function(opts) {
-      await ApiService[this.mode]({
-        id: opts.id,
-        toTime: `${opts.toDate}T${opts.toTime}`,
-        fromTime: `${opts.fromDate}T${opts.fromTime}`
-      })
-        .then(res => {
-          // TODO deal with the different results from other request modes.
-          const data = res.data.station.properties;
-
-          this.$set(this.station, 'total', data.totalDocks);
-          this.$set(this.station, 'available', data.bikesAvailable);
-          this.$set(this.station, 'empty', data.docksAvailable);
-        })
-        .catch(err => {
-          console.error('🚨', err);
-          return {};
-        });
-
+    station: function() {
       this.renderChart(
         {
           labels: ['Empty Docks', 'Available Bikes'],
@@ -65,7 +25,7 @@ export default {
             {
               label: 'GitHub Commits',
               backgroundColor: ['#17a2b8', '#28a745'],
-              data: [this.station.empty, this.station.available]
+              data: [this.station.docksAvailable, this.station.bikesAvailable]
             }
           ]
         },
@@ -73,14 +33,51 @@ export default {
       );
     }
   },
-  created() {
-    this.getInfo({
+  methods: {
+    getInfo: async function(opts) {
+      const stationData = await ApiService[this.mode]({
+        id: opts.id,
+        toTime: `${opts.toDate}T${opts.toTime}`,
+        fromTime: `${opts.fromDate}T${opts.fromTime}`
+      })
+        .then(res => {
+          // TODO deal with the different results from other request modes.
+          return res.data.station.properties;
+        })
+        .catch(err => {
+          console.error('🚨', err);
+          return {};
+        });
+
+      return stationData;
+    }
+  },
+  mounted: async function() {
+    this.$watch(
+      () => ({
+        mode: this.mode,
+        stationId: this.stationId,
+        toDate: this.toDate,
+        toTime: this.toTime
+      }),
+      async function(data) {
+        this.station = await this.getInfo({
+          mode: data.mode,
+          id: data.stationId,
+          toDate: data.toDate,
+          toTime: data.toTime
+          // fromDate: this.mode === 'getOneSeries' ? this.fromDate : null,
+          // fromTime: this.mode === 'getOneSeries' ? this.fromTime : null
+        });
+      }
+    );
+
+    // Get the real station data to start.
+    this.station = await this.getInfo({
       mode: this.mode,
       id: this.stationId,
       toDate: this.toDate,
-      toTime: this.toTime,
-      fromDate: this.mode === 'getOneSeries' ? this.fromDate : null,
-      fromTime: this.mode === 'getOneSeries' ? this.fromTime : null
+      toTime: this.toTime
     });
   }
 };
