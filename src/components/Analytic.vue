@@ -16,14 +16,12 @@
           <label for="startTime">Snapshot time</label>
           <input class="form-control" type="time" name="startTime" v-model="toTime">
         </div>
-        <div class="form-group col">
-          <label for="stationId">Station ID</label>
+        <div class="form-group col-12">
+          <label for="stationId">Station</label>
           <select class="form-control" id="stationId" v-model="stationId">
-            <option>3069</option>
-            <option>3004</option>
-            <option>3005</option>
-            <option>3006</option>
-            <option>3007</option>
+            <option v-for="sta in stationIds" :value="sta.id" :key="sta.id">
+              {{ sta.address }}
+            </option>
           </select>
         </div>
       </form>
@@ -55,7 +53,8 @@ export default {
       toDate: initialDate,
       toTime: initialTime,
       station: {},
-      mode: 'getOneSnap'
+      mode: 'getOneSnap',
+      stationIds: [3069]
     };
   },
   computed: {
@@ -81,11 +80,32 @@ export default {
           return res.data.station.properties;
         })
         .catch(err => {
-          console.error('🚨', err);
+          console.error('getInfo 🚨', err);
           return {};
         });
 
       return stationData;
+    },
+    // Set all station IDs to populate the select input.
+    getStations: async function(opts) {
+      const thing = await ApiService.getAllSnap({
+        toTime: `${opts.toDate}T${opts.toTime}`
+      })
+        .then(res => {
+          if (res.data && res.data.stations.length > 0) {
+            this.stationIds = [];
+            for (let station of res.data.stations) {
+              this.stationIds.push({
+                id: station.properties.kioskId,
+                address: station.properties.addressStreet
+              });
+            }
+            this.stationIds.sort((a, b) => a.id - b.id);
+          }
+        })
+        .catch(err => {
+          console.error('🚨', err);
+        });
     }
   },
   mounted: async function() {
@@ -105,6 +125,11 @@ export default {
           // fromDate: this.mode === 'getOneSeries' ? this.fromDate : null,
           // fromTime: this.mode === 'getOneSeries' ? this.fromTime : null
         });
+
+        await this.getStations({
+          toDate: data.toDate ? data.toDate : initialDate,
+          toTime: data.toTime ? data.toTime : initialTime
+        });
       }
     );
 
@@ -112,6 +137,11 @@ export default {
     this.station = await this.getInfo({
       mode: this.mode,
       id: this.stationId,
+      toDate: this.toDate,
+      toTime: this.toTime
+    });
+
+    await this.getStations({
       toDate: this.toDate,
       toTime: this.toTime
     });
