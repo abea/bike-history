@@ -16,6 +16,16 @@
           <label for="startTime">Snapshot time</label>
           <input class="form-control" type="time" name="startTime" v-model="toTime">
         </div>
+        <div class="form-group col">
+          <label for="stationId">Station ID</label>
+          <select class="form-control" id="stationId" v-model="stationId">
+            <option>3069</option>
+            <option>3004</option>
+            <option>3005</option>
+            <option>3006</option>
+            <option>3007</option>
+          </select>
+        </div>
       </form>
     </div>
   </div>
