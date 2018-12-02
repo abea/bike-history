@@ -88,7 +88,7 @@ export default {
     },
     // Set all station IDs to populate the select input.
     getStations: async function(opts) {
-      const thing = await ApiService.getAllSnap({
+      await ApiService.getAllSnap({
         toTime: `${opts.toDate}T${opts.toTime}`
       })
         .then(res => {
