@@ -3,7 +3,7 @@
   <div class="card mb-3">
     <div class="card-header">
       <strong>Date/Time:</strong> {{ toDate || 'Date not set' }}, {{ toTime || 'Time not set' }}<br/>
-      <strong>Station:</strong> {{ station.addressStreet }}, {{ station.addressCity }} {{ station.addressState }} {{ station.addressZipCode }} (ID: {{ stationId }})
+      <strong>Station:</strong> {{ stationAddress }} (ID: {{ stationId }})
     </div>
     <div class="card-body">
       <Chart :station="station"/>
@@ -47,6 +47,17 @@ export default {
       station: {},
       mode: 'getOneSnap'
     };
+  },
+  computed: {
+    stationAddress: function() {
+      if (this.station.addressStreet) {
+        return `${this.station.addressStreet}, ${this.station.addressCity} ${
+          this.station.addressState
+        } ${this.station.addressZipCode}`;
+      } else {
+        return 'Not found';
+      }
+    }
   },
   methods: {
     getInfo: async function(opts) {
