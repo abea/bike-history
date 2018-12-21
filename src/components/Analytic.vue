@@ -3,10 +3,12 @@
   <div class="card mb-3">
     <div class="card-header">
       <strong>Date/Time:</strong> {{ toDate || 'Date not set' }}, {{ toTime || 'Time not set' }}<br/>
-      <strong>Station:</strong> {{ stationAddress }} (ID: {{ stationId }})
+      <span v-if="mode !== 'getAllSnap'">
+        <strong>Station:</strong> {{ stationAddress }} (ID: {{ stationId }})
+      </span>
     </div>
     <div class="card-body">
-      <Chart :station="station"/>
+      <Chart :info="info"/>
       <form class="form-row">
         <div class="form-group col-12">
           <label for="mode">Query mode</label>
@@ -60,7 +62,7 @@ export default {
       stationId: 3069,
       toDate: initialDate,
       toTime: initialTime,
-      station: {},
+      info: {},
       mode: 'getOneSnap',
       stationIds: [3069],
       modes: [
@@ -81,10 +83,10 @@ export default {
   },
   computed: {
     stationAddress: function() {
-      if (this.station.addressStreet) {
-        return `${this.station.addressStreet}, ${this.station.addressCity} ${
-          this.station.addressState
-        } ${this.station.addressZipCode}`;
+      if (this.info.addressStreet) {
+        return `${this.info.addressStreet}, ${this.info.addressCity} ${
+          this.info.addressState
+        } ${this.info.addressZipCode}`;
       } else {
         return 'Not found';
       }
@@ -152,7 +154,7 @@ export default {
         toTime: this.toTime
       }),
       async function(data) {
-        this.station = await this.getInfo({
+        this.info = await this.getInfo({
           mode: data.mode,
           id: data.stationId,
           toDate: data.toDate ? data.toDate : initialDate,
@@ -169,7 +171,7 @@ export default {
     );
 
     // Get the real station data to start.
-    this.station = await this.getInfo({
+    this.info = await this.getInfo({
       mode: this.mode,
       id: this.stationId,
       toDate: this.toDate,

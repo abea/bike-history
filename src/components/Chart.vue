@@ -5,13 +5,13 @@ export default {
   extends: Pie,
   name: 'Chart',
   props: {
-    station: {
+    info: {
       type: Object,
       required: true
     }
   },
   watch: {
-    station: function() {
+    info: function() {
       this.renderChart(
         {
           labels: ['Empty Docks', 'Available Bikes'],
@@ -19,7 +19,7 @@ export default {
             {
               label: 'GitHub Commits',
               backgroundColor: ['#17a2b8', '#28a745'],
-              data: [this.station.docksAvailable, this.station.bikesAvailable]
+              data: [this.info.docksAvailable, this.info.bikesAvailable]
             }
           ]
         },
