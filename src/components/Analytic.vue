@@ -8,6 +8,14 @@
     <div class="card-body">
       <Chart :station="station"/>
       <form class="form-row">
+        <div class="form-group col-12">
+          <label for="mode">Query mode</label>
+          <select class="form-control" id="mode" v-model="mode">
+            <option v-for="mode in modes" :value="mode.name" :key="mode.name">
+              {{ mode.label }}
+            </option>
+          </select>
+        </div>
         <div class="form-group col">
           <label class="" for="startDate">Snapshot date</label>
           <input class="form-control" type="date" name="startDate" v-model="toDate">
@@ -16,7 +24,7 @@
           <label for="startTime">Snapshot time</label>
           <input class="form-control" type="time" name="startTime" v-model="toTime">
         </div>
-        <div class="form-group col-12">
+        <div class="form-group col-12" v-if="mode !== 'getAllSnap'">
           <label for="stationId">Station</label>
           <select class="form-control" id="stationId" v-model="stationId">
             <option v-for="sta in stationIds" :value="sta.id" :key="sta.id">
@@ -54,7 +62,21 @@ export default {
       toTime: initialTime,
       station: {},
       mode: 'getOneSnap',
-      stationIds: [3069]
+      stationIds: [3069],
+      modes: [
+        {
+          name: 'getOneSnap',
+          label: 'One station at one time'
+        },
+        {
+          name: 'getAllSnap',
+          label: 'All stations at one time'
+        }
+        // {
+        //   name: 'getOneSeries',
+        //   label: 'One station over time'
+        // }
+      ]
     };
   },
   computed: {
@@ -76,8 +98,21 @@ export default {
         fromTime: `${opts.fromDate}T${opts.fromTime}`
       })
         .then(res => {
+          let data;
+
+          switch (this.mode) {
+            case 'getOneSnap':
+              data = res.data.station.properties;
+              break;
+            case 'getAllSnap':
+              data = res.data.stations;
+              break;
+            default:
+              console.error('Request mode not recognized.');
+          }
+
           // TODO deal with the different results from other request modes.
-          return res.data.station.properties;
+          return data;
         })
         .catch(err => {
           console.error('getInfo 🚨', err);
