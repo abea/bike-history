@@ -8,7 +8,7 @@
       </span>
     </div>
     <div class="card-body">
-      <Chart :info="info"/>
+      <PieChart :info="info" v-if="mode === 'getOneSnap'"/>
       <form class="form-row">
         <div class="form-group col-12">
           <label for="mode">Query mode</label>
@@ -42,7 +42,7 @@
 
 <script>
 import ApiService from '@/services/ApiService';
-import Chart from '@/components/Chart.vue';
+import PieChart from '@/components/PieChart.vue';
 import moment from 'moment';
 
 const initialMoment = moment().subtract({ hours: 1 });
@@ -55,7 +55,7 @@ const initialTime = initialMoment.format('HH:mm:ss');
 export default {
   name: 'Analytic',
   components: {
-    Chart
+    PieChart
   },
   data() {
     return {
