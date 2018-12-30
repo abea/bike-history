@@ -3,13 +3,12 @@
   <div class="card mb-3">
     <div class="card-header">
       <strong>Date/Time:</strong> {{ toDate || 'Date not set' }}, {{ toTime || 'Time not set' }}<br/>
-      <span v-if="mode !== 'getAllSnap'">
+      <span v-if="mode !== 'getAllSnap' && stationAddress">
         <strong>Station:</strong> {{ stationAddress }} (ID: {{ stationId }})
       </span>
     </div>
-    <div class="card-body">
-      <PieChart :info="info" v-if="mode === 'getOneSnap'"/>
-      <form class="form-row">
+    <div class="card-body row">
+      <form class="col-lg-6 form-row">
         <div class="form-group col-12">
           <label for="mode">Query mode</label>
           <select class="form-control" id="mode" v-model="mode">
@@ -29,12 +28,16 @@
         <div class="form-group col-12" v-if="mode !== 'getAllSnap'">
           <label for="stationId">Station</label>
           <select class="form-control" id="stationId" v-model="stationId">
-            <option v-for="sta in stationIds" :value="sta.id" :key="sta.id">
+            <option v-if="sta.id" v-for="sta in stationIds" :value="sta.id" :key="sta.id">
               {{ sta.address }}
             </option>
           </select>
         </div>
       </form>
+      <p class="col-lg-6" v-if="error || !stationAddress">
+        <strong>No data returned for this request.</strong>
+      </p>
+      <PieChart class="col-lg-6" :info="info" v-else-if="mode === 'getOneSnap'"/>
     </div>
   </div>
   </section>
@@ -78,17 +81,18 @@ export default {
         //   name: 'getOneSeries',
         //   label: 'One station over time'
         // }
-      ]
+      ],
+      error: null
     };
   },
   computed: {
     stationAddress: function() {
-      if (this.info.addressStreet) {
+      if (this.info && this.info.addressStreet) {
         return `${this.info.addressStreet}, ${this.info.addressCity} ${
           this.info.addressState
         } ${this.info.addressZipCode}`;
       } else {
-        return 'Not found';
+        return null;
       }
     }
   },
@@ -104,9 +108,21 @@ export default {
 
           switch (this.mode) {
             case 'getOneSnap':
+              if (!res.data.station) {
+                this.error = true;
+                break;
+              }
+
+              this.error = null;
               data = res.data.station.properties;
               break;
             case 'getAllSnap':
+              if (!res.data.stations) {
+                this.error = true;
+                break;
+              }
+
+              this.error = null;
               data = res.data.stations;
               break;
             default:
@@ -129,8 +145,9 @@ export default {
         toTime: `${opts.toDate}T${opts.toTime}`
       })
         .then(res => {
-          if (res.data && res.data.stations.length > 0) {
-            this.stationIds = [];
+          this.stationIds = [];
+
+          if (res.data && res.data.stations && res.data.stations.length > 0) {
             for (let station of res.data.stations) {
               this.stationIds.push({
                 id: station.properties.kioskId,
@@ -138,10 +155,13 @@ export default {
               });
             }
             this.stationIds.sort((a, b) => a.id - b.id);
+            this.error = null;
+          } else {
+            this.error = true;
           }
         })
         .catch(err => {
-          console.error('🚨', err);
+          console.error('getStations 🚨', err);
         });
     }
   },
