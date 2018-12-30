@@ -34,10 +34,11 @@
           </select>
         </div>
       </form>
-      <p class="col-lg-6" v-if="error || !stationAddress">
+      <p class="col-lg-6" v-if="error || (mode !== 'getAllSnap' && !stationAddress)">
         <strong>No data returned for this request.</strong>
       </p>
       <PieChart class="col-lg-6" :info="info" v-else-if="mode === 'getOneSnap'"/>
+      <BarChart class="col-lg-12" :info="info" v-else-if="mode === 'getAllSnap'"/>
     </div>
   </div>
   </section>
@@ -46,6 +47,7 @@
 <script>
 import ApiService from '@/services/ApiService';
 import PieChart from '@/components/PieChart.vue';
+import BarChart from '@/components/BarChart.vue';
 import moment from 'moment';
 
 const initialMoment = moment().subtract({ hours: 1 });
@@ -58,7 +60,8 @@ const initialTime = initialMoment.format('HH:mm:ss');
 export default {
   name: 'Analytic',
   components: {
-    PieChart
+    PieChart,
+    BarChart
   },
   data() {
     return {
