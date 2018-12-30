@@ -15,6 +15,7 @@ exports.returnResults = (req, res) => {
     } else {
       delete results.weather;
       req.statusCode = 202;
+      req.message = 'No station data available.';
     }
   } else if (req.weathers && req.stationHours) {
     results.data = [];
