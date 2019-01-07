@@ -17,13 +17,25 @@
             </option>
           </select>
         </div>
-        <div class="form-group col">
-          <label class="" for="startDate">Snapshot date</label>
-          <input class="form-control" type="date" name="startDate" v-model="toDate">
+        <div class="form-group col" v-if="mode === 'getOneSeries'">
+          <label class="" for="startDate">Start date</label>
+          <input class="form-control" type="date" name="startDate" v-model="fromDate">
+        </div>
+        <div class="form-group col" v-if="mode === 'getOneSeries'">
+          <label for="startTime">Start time</label>
+          <input class="form-control" type="time" name="startTime" v-model="fromTime">
         </div>
         <div class="form-group col">
-          <label for="startTime">Snapshot time</label>
-          <input class="form-control" type="time" name="startTime" v-model="toTime">
+          <label class="" for="endDate">
+            {{ mode === 'getOneSeries' ? 'End Date' : 'Snapshot date' }}
+          </label>
+          <input class="form-control" type="date" name="endDate" v-model="toDate">
+        </div>
+        <div class="form-group col">
+          <label for="endTime">
+            {{ mode === 'getOneSeries' ? 'End Time' : 'Snapshot time' }}
+          </label>
+          <input class="form-control" type="time" name="endTime" v-model="toTime">
         </div>
         <div class="form-group col-12" v-if="mode !== 'getAllSnap'">
           <label for="stationId">Station</label>
@@ -39,6 +51,7 @@
       </p>
       <PieChart class="col-lg-6" :info="info" v-else-if="mode === 'getOneSnap'"/>
       <BarChart class="col-lg-12" :info="info" v-else-if="mode === 'getAllSnap'"/>
+      <LineChart class="col-lg-12" :info="info" v-else-if="mode === 'getOneSeries'"/>
     </div>
   </div>
   </section>
@@ -48,26 +61,30 @@
 import ApiService from '@/services/ApiService';
 import PieChart from '@/components/PieChart.vue';
 import BarChart from '@/components/BarChart.vue';
+import LineChart from '@/components/LineChart.vue';
 import moment from 'moment';
 
 const initialMoment = moment().subtract({ hours: 1 });
 const initialDate = initialMoment.format('YYYY-MM-DD');
 const initialTime = initialMoment.format('HH:mm:ss');
-// const initialFrom = initialMoment.subtract({ hours: 25 });
-// const initialFromDate = initialFrom.format('YYYY-MM-DD');
-// const initialFromTime = initialFrom.format('HH:mm:ss');
+const initialFrom = initialMoment.subtract({ hours: 72 });
+const initialFromDate = initialFrom.format('YYYY-MM-DD');
+const initialFromTime = initialFrom.format('HH:mm:ss');
 
 export default {
   name: 'Analytic',
   components: {
     PieChart,
-    BarChart
+    BarChart,
+    LineChart
   },
   data() {
     return {
       stationId: 3069,
       toDate: initialDate,
       toTime: initialTime,
+      fromDate: initialFromDate,
+      fromTime: initialFromTime,
       info: {},
       mode: 'getOneSnap',
       stationIds: [3069],
@@ -79,24 +96,34 @@ export default {
         {
           name: 'getAllSnap',
           label: 'All stations at one time'
+        },
+        {
+          name: 'getOneSeries',
+          label: 'One station over time'
         }
-        // {
-        //   name: 'getOneSeries',
-        //   label: 'One station over time'
-        // }
       ],
       error: null
     };
   },
   computed: {
     stationAddress: function() {
+      let source;
+
       if (this.info && this.info.addressStreet) {
-        return `${this.info.addressStreet}, ${this.info.addressCity} ${
-          this.info.addressState
-        } ${this.info.addressZipCode}`;
+        source = this.info;
+      } else if (
+        this.info &&
+        this.info.length > 0 &&
+        this.info[0].station.properties
+      ) {
+        source = this.info[0].station.properties;
       } else {
         return null;
       }
+
+      return `${source.addressStreet}, ${source.addressCity} ${
+        source.addressState
+      } ${source.addressZipCode}`;
     }
   },
   methods: {
@@ -128,11 +155,14 @@ export default {
               this.error = null;
               data = res.data.stations;
               break;
+            case 'getOneSeries':
+              data = res.data.data;
+
+              break;
             default:
               console.error('Request mode not recognized.');
           }
 
-          // TODO deal with the different results from other request modes.
           return data;
         })
         .catch(err => {
@@ -143,7 +173,7 @@ export default {
       return stationData;
     },
     // Set all station IDs to populate the select input.
-    getStations: async function(opts) {
+    getStationList: async function(opts) {
       await ApiService.getAllSnap({
         toTime: `${opts.toDate}T${opts.toTime}`
       })
@@ -164,7 +194,7 @@ export default {
           }
         })
         .catch(err => {
-          console.error('getStations 🚨', err);
+          console.error('getStationList 🚨', err);
         });
     }
   },
@@ -181,12 +211,12 @@ export default {
           mode: data.mode,
           id: data.stationId,
           toDate: data.toDate ? data.toDate : initialDate,
-          toTime: data.toTime ? data.toTime : initialTime
-          // fromDate: this.mode === 'getOneSeries' ? this.fromDate : null,
-          // fromTime: this.mode === 'getOneSeries' ? this.fromTime : null
+          toTime: data.toTime ? data.toTime : initialTime,
+          fromDate: this.mode === 'getOneSeries' ? this.fromDate : null,
+          fromTime: this.mode === 'getOneSeries' ? this.fromTime : null
         });
 
-        await this.getStations({
+        await this.getStationList({
           toDate: data.toDate ? data.toDate : initialDate,
           toTime: data.toTime ? data.toTime : initialTime
         });
@@ -201,7 +231,7 @@ export default {
       toTime: this.toTime
     });
 
-    await this.getStations({
+    await this.getStationList({
       toDate: this.toDate,
       toTime: this.toTime
     });
