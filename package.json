@@ -2,7 +2,7 @@
   "name": "abea-backend-challenge",
   "version": "1.1.0",
   "description": "P'unk Avenue Node.js Backend Challenge",
-  "main": "app.js",
+  "private": true,
   "scripts": {
     "pretest": "eslint --ignore-path .gitignore .",
     "start": "node ./server/start",
@@ -40,6 +40,10 @@
     "vue-router": "^3.0.1"
   },
   "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.0.5",
+    "@vue/cli-plugin-eslint": "^3.0.5",
+    "@vue/cli-service": "^3.0.5",
+    "@vue/eslint-config-prettier": "^3.0.5",
     "chai-match": "^1.1.1",
     "eslint": "^5.5.0",
     "eslint-config-apostrophe": "^2.0.2",
@@ -50,10 +54,8 @@
     "eslint-plugin-standard": "^3.1.0",
     "mocha": "^5.2.0",
     "nodemon": "^1.18.4",
-    "@vue/cli-plugin-babel": "^3.0.5",
-    "@vue/cli-plugin-eslint": "^3.0.5",
-    "@vue/cli-service": "^3.0.5",
-    "@vue/eslint-config-prettier": "^3.0.5",
-    "vue-template-compiler": "^2.5.17"
+    "vue-template-compiler": "^2.5.17",
+    "webpack": "^4.28.1",
+    "webpack-cli": "^3.2.1"
   }
 }
