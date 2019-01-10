@@ -8,14 +8,15 @@ const indegoDump = require('../sample-data/indego-dump.json');
 const path = require('path');
 
 router.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname + '/../../dist/index.html'));
+  res.sendFile(path.join(__dirname + '/../../index.html'));
 });
 
-router.get('/:dir/:file', (req, res) => {
-  res.sendFile(
-    path.join(`${__dirname}/../../dist/${req.params.dir}/${req.params.file}`)
-  );
-});
+// NOTE: Dislabling while fixing Vue integration
+// router.get('/:dir/:file', (req, res) => {
+//   res.sendFile(
+//     path.join(`${__dirname}/../../dist/${req.params.dir}/${req.params.file}`)
+//   );
+// });
 
 router.post(
   '/api/v1/post/weather',
