@@ -1,15 +1,17 @@
 const request = require('request-promise');
 require('dotenv').config({ path: `${__dirname}/../variables.env` });
 
-const weatherUrl = `http://api.openweathermap.org/data/2.5/weather?appid=${process.env.WEATHER_KEY}&id=${process.env.WEATHER_CITY_ID}`;
+const weatherUrl = `http://api.openweathermap.org/data/2.5/weather?appid=${
+  process.env.WEATHER_KEY
+}&id=${process.env.WEATHER_CITY_ID}`;
 const bikesUrl = 'https://www.rideindego.com/stations/json';
 // const bikesTest = `${process.env.ROOT_URL}/api/v1/get/sample-bikes`;
 
 // - Set timestamp
-const timestamp = (new Date()).toISOString();
+const timestamp = new Date().toISOString();
 
 // - Get weather snapshot
-function getWeather () {
+function getWeather() {
   return request({
     uri: weatherUrl,
     method: 'GET',
@@ -19,11 +21,11 @@ function getWeather () {
       return weather;
     })
     .catch(err => {
-      return {error: err};
+      return { error: err };
     });
 }
 
-function getBikes () {
+function getBikes() {
   return request({
     uri: bikesUrl,
     method: 'GET',
@@ -33,31 +35,30 @@ function getBikes () {
       return data.features;
     })
     .catch(err => {
-      return {error: err};
+      return { error: err };
     });
 }
 
 // Function to check if the bike stations are done saving.
-function checkBikes (id) {
+function checkBikes(id) {
   return request({
     uri: `${process.env.ROOT_URL}/api/v1/get/bike-processing/${id}`,
     method: 'GET',
     json: true,
     timeout: 4000
-  })
-    .catch(err => {
-      if (err.error.code === 'ESOCKETTIMEDOUT') {
-        return {
-          status: 202,
-          message: 'checkBikes request timeout. Check again.'
-        };
-      }
+  }).catch(err => {
+    if (err.error.code === 'ESOCKETTIMEDOUT') {
+      return {
+        status: 202,
+        message: 'checkBikes request timeout. Check again.'
+      };
+    }
 
-      return err;
-    });
+    return err;
+  });
 }
 
-async function init () {
+async function init() {
   const weather = await getWeather();
   const stations = await getBikes();
 
@@ -119,7 +120,7 @@ async function init () {
     });
 }
 
-function stationsChecker (status) {
+function stationsChecker(status) {
   const statusId = status.cacheId;
 
   return new Promise((resolve, reject) => {

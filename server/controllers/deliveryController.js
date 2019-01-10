@@ -15,6 +15,7 @@ exports.returnResults = (req, res) => {
     } else {
       delete results.weather;
       req.statusCode = 202;
+      req.message = 'No station data available.';
     }
   } else if (req.weathers && req.stationHours) {
     results.data = [];
@@ -27,7 +28,9 @@ exports.returnResults = (req, res) => {
       });
     }
 
-    if (results.data.length === 0) { req.statusCode = 202; }
+    if (results.data.length === 0) {
+      req.statusCode = 202;
+    }
   }
 
   results.statusCode = req.statusCode ? req.statusCode : 200;
