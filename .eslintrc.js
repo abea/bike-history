@@ -3,7 +3,7 @@ module.exports = {
   env: {
     node: true
   },
-  extends: ["plugin:vue/essential", "@vue/prettier", "apostrophe"],
+  extends: ["plugin:vue/essential", "apostrophe"],
   "rules": {
     "no-console": [1, {
       "allow": ["info", "error"]
