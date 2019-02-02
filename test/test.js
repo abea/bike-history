@@ -8,7 +8,7 @@ require('../server/models/Weather');
 require('../server/models/Cache');
 const sampleWeather = require('../server/sample-data/weather-dump.json');
 const sampleStations = require('../server/sample-data/indego-dump.json');
-const {stationsChecker} = require('../scripts/get-data');
+const { stationsChecker } = require('../scripts/get-data');
 const express = require('express');
 const routes = require('../server/routes/index');
 const bodyParser = require('body-parser');

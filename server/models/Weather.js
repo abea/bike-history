@@ -41,7 +41,7 @@ const weatherFields = {
   dt: Number,
   sys: {
     // Extra layer to indicate this isn't the "type" of `sys`
-    type: {type: Number},
+    type: { type: Number },
     id: Number,
     message: Number,
     country: String,

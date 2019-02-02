@@ -115,8 +115,8 @@ exports.returnWeather = async (req, res, next) => {
     // Get documents it's possible we might need.
     const weatherDays = await Weather.find({
       $and: [
-        {updatedAt: {$gte: fromTime}},
-        {timestamp: {$lte: toTime}}
+        { updatedAt: { $gte: fromTime } },
+        { timestamp: { $lte: toTime } }
       ]
     });
 
@@ -138,7 +138,7 @@ exports.returnWeather = async (req, res, next) => {
 
 async function getWeatherAt (q) {
   const hourProp = `hours.${q.hour}`;
-  const snapshot = await Weather.findOne({_id: q.date}, {
+  const snapshot = await Weather.findOne({ _id: q.date }, {
     [hourProp]: 1
   });
 
@@ -154,7 +154,10 @@ async function getWeatherAt (q) {
   const timestamp = weather.timestamp;
   delete weather.timestamp; // Not from the original snapshot.
 
-  return {weather, timestamp};
+  return {
+    weather,
+    timestamp
+  };
 }
 
 const emptyWeather = {
