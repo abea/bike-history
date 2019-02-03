@@ -5,7 +5,7 @@ node_modules
 
 # Vue CLI
 # *******
-/dist
+# /dist
 
 # local env files
 .env.local
