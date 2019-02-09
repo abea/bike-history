@@ -34,7 +34,6 @@ exports.saveStations = async (req, res) => {
 
   const stationData = await Promise.all(bikePromises);
 
-
   await Cache.findOneAndUpdate(
     { _id: cacheId },
     {
