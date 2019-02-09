@@ -1,14 +1,17 @@
 {
   "name": "abea-backend-challenge",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "P'unk Avenue Node.js Backend Challenge",
-  "main": "app.js",
+  "private": true,
   "scripts": {
-    "pretest": "eslint --ignore-path .gitignore .",
-    "start": "node start",
-    "dev": "nodemon start --exec 'npm run pretest && node'",
+    "pretest": "eslint .",
+    "start": "node ./server/start",
+    "dev": "nodemon ./server/start --exec 'npm run pretest && node'",
     "test": "mocha",
-    "updater": "node ./bin/updater"
+    "updater": "node ./bin/updater",
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
   },
   "repository": {
     "type": "git",
@@ -18,29 +21,41 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/abea/abea-backend-challenge#readme",
   "dependencies": {
+    "axios": "^0.18.0",
     "body-parser": "^1.18.3",
-    "chai": "^4.1.2",
+    "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "dotenv": "^6.0.0",
-    "express": "^4.16.3",
-    "moment": "^2.22.2",
-    "moment-timezone": "^0.5.21",
-    "mongoose": "^5.2.10",
+    "chart.js": "^2.7.3",
+    "dotenv": "^6.2.0",
+    "express": "^4.16.4",
+    "moment": "^2.24.0",
+    "moment-timezone": "^0.5.23",
+    "mongoose": "^5.4.11",
     "mongoose-mongodb-errors": "0.0.2",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "vue": "^2.6.4",
+    "vue-chartjs": "^3.4.0",
+    "vue-router": "^3.0.2"
   },
   "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.4.0",
+    "@vue/cli-plugin-eslint": "^3.4.0",
+    "@vue/cli-service": "^3.4.0",
+    "@vue/eslint-config-prettier": "^3.0.5",
     "chai-match": "^1.1.1",
-    "eslint": "^5.5.0",
+    "eslint": "^5.13.0",
     "eslint-config-apostrophe": "^2.0.2",
-    "eslint-config-standard": "^12.0.0-alpha.0",
-    "eslint-plugin-import": "^2.13.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.16.0",
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.8.0",
     "eslint-plugin-standard": "^3.1.0",
     "mocha": "^5.2.0",
-    "nodemon": "^1.18.4"
+    "nodemon": "^1.18.10",
+    "vue-template-compiler": "^2.6.4",
+    "webpack": "^4.29.3",
+    "webpack-cli": "^3.2.3"
   }
 }

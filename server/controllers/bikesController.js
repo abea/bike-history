@@ -10,8 +10,10 @@ let finishedCount = 0; // TODO: Remove this and the logs once in production.
 exports.saveStations = async (req, res) => {
   const stations = req.body.stations;
   const timestamp = req.body.timestamp;
-  const dayStamp = moment(timestamp).tz("America/New_York").format('YYYY-MM-DD');
-  const cache = await (new Cache({ _id: uuid() })).save();
+  const dayStamp = moment(timestamp)
+    .tz('America/New_York')
+    .format('YYYY-MM-DD');
+  const cache = await new Cache({ _id: uuid() }).save();
   const cacheId = cache._id;
 
   finishedCount = 0;
@@ -32,6 +34,7 @@ exports.saveStations = async (req, res) => {
 
   const stationData = await Promise.all(bikePromises);
 
+
   await Cache.findOneAndUpdate(
     { _id: cacheId },
     {
@@ -43,7 +46,7 @@ exports.saveStations = async (req, res) => {
 exports.getPostStatus = async (req, res) => {
   const cacheId = req.params.cacheId;
 
-  const completed = await Cache.findOne({_id: cacheId});
+  const completed = await Cache.findOne({ _id: cacheId });
 
   if (completed.count) {
     res.status(201).send({
@@ -72,17 +75,14 @@ exports.returnStations = async (req, res, next) => {
 
     req.station = snapshots.station;
     req.stations = snapshots.stations;
-  } else if (kiosk && (to > from)) {
+  } else if (kiosk && to > from) {
     const fromTime = h.estToUtc(from);
     const toTime = h.estToUtc(to);
-    const freq = (req.query.frequency === 'daily') ? 'daily' : 'hourly';
+    const freq = req.query.frequency === 'daily' ? 'daily' : 'hourly';
     // Get documents it's possible we might need.
     const stationDays = await StationDay.find({
       kioskId: kiosk,
-      $and: [
-        {updatedAt: {$gte: fromTime}},
-        {timestamp: {$lte: toTime}}
-      ]
+      $and: [{ updatedAt: { $gte: fromTime } }, { timestamp: { $lte: toTime } }]
     });
 
     req.stationHours = h.pullSnapshots(stationDays, {
@@ -95,14 +95,15 @@ exports.returnStations = async (req, res, next) => {
 
     req.errors.push({
       code: 422,
-      message: 'Stations query invalid. You must include a date-formatted "at" query string or "from" and "to" query strings (the former being before the latter). If querying a time span, the kiosk ID must be included (e.g., /api/v1/get/stations/:kioskId?from=[a date]&to=[a date]).'
+      message:
+        'Stations query invalid. You must include a date-formatted "at" query string or "from" and "to" query strings (the former being before the latter). If querying a time span, the kiosk ID must be included (e.g., /api/v1/stations/:kioskId?from=[a date]&to=[a date]).'
     });
   }
 
   next();
 };
 
-const processStation = function (data) {
+const processStation = function(data) {
   const station = data.station;
   const stationId = station.properties.kioskId;
   const docId = `${stationId}~${data.dayStamp}`;
@@ -130,7 +131,7 @@ const processStation = function (data) {
     });
 };
 
-const findStationDay = async function (data) {
+const findStationDay = async function(data) {
   const station = data.station;
   const stationId = station.properties.kioskId;
   const docId = `${stationId}~${data.dayStamp}`;
@@ -143,8 +144,10 @@ const findStationDay = async function (data) {
   return savedStation;
 };
 
-const saveStationDay = async function (data) {
-  data.hour = moment(data.timestamp).tz("America/New_York").hours();
+const saveStationDay = async function(data) {
+  data.hour = moment(data.timestamp)
+    .tz('America/New_York')
+    .hours();
   data.station.timestamp = data.timestamp;
 
   if (data.noDoc) {
@@ -158,7 +161,7 @@ const saveStationDay = async function (data) {
   }
 };
 
-const saveNew = function (data) {
+const saveNew = async function(data) {
   const newData = {};
 
   newData._id = data.docId;
@@ -170,18 +173,20 @@ const saveNew = function (data) {
   newData.hours = {};
 
   const hoursInDay = [...Array(24).keys()];
-  for (const hour of hoursInDay) { newData.hours[hour] = emptyStationDay; }
+  for (const hour of hoursInDay) {
+    newData.hours[hour] = emptyStationDay;
+  }
 
   newData.hours[data.hour] = data.station;
 
   const newDay = new StationDay(newData);
-  return newDay.save();
+  await newDay.save();
 };
 
-const updateOld = function (data) {
+const updateOld = async function(data) {
   const field = `hours.${data.hour}`;
 
-  return StationDay.findOneAndUpdate(
+  await StationDay.findOneAndUpdate(
     {
       _id: data.docId
     },
@@ -197,22 +202,23 @@ const updateOld = function (data) {
   );
 };
 
-async function getStationsAt (q) {
+async function getStationsAt(q) {
   const hour = h.hourFromTimestamp(q.at);
   const hourProp = `hours.${hour}`;
   const day = q.at.substring(0, q.at.indexOf('T'));
-  const nextDay = moment(day).add(1, 'day').format('YYYY-MM-DD');
+  const nextDay = moment(day)
+    .add(1, 'day')
+    .format('YYYY-MM-DD');
   const result = {};
 
   const kiosk = q.kiosk;
   let query = {
-    $and: [
-      {timestamp: {$gte: day}},
-      {timestamp: {$lt: nextDay}}
-    ]
+    $and: [{ timestamp: { $gte: day } }, { timestamp: { $lt: nextDay } }]
   };
 
-  if (kiosk) { query.kioskId = kiosk; }
+  if (kiosk) {
+    query.kioskId = kiosk;
+  }
 
   const snapshot = await StationDay.find(query, {
     [hourProp]: 1

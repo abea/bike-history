@@ -3,14 +3,14 @@ const request = require('request-promise');
 const chai = require('chai');
 chai.use(require('chai-match'));
 const expect = chai.expect;
-require('../models/StationDay');
-require('../models/Weather');
-require('../models/Cache');
-const sampleWeather = require('../sample-data/weather-dump.json');
-const sampleStations = require('../sample-data/indego-dump.json');
-const {stationsChecker} = require('../scripts/get-data');
+require('../server/models/StationDay');
+require('../server/models/Weather');
+require('../server/models/Cache');
+const sampleWeather = require('../server/sample-data/weather-dump.json');
+const sampleStations = require('../server/sample-data/indego-dump.json');
+const { stationsChecker } = require('../scripts/get-data');
 const express = require('express');
-const routes = require('../routes/index');
+const routes = require('../server/routes/index');
 const bodyParser = require('body-parser');
 const app = express();
 let server;
@@ -22,6 +22,11 @@ const weatherUrl = 'http://api.openweathermap.org/data/2.5/weather';
 describe('Open Weather', function() {
   // NOTE: Probably unnecessary now.
   it('should receive a response from the weather API with key.', async () => {
+    // Allow for running other tests offline
+    if (process.env.OFFLINE_TEST) {
+      expect(process.env.OFFLINE_TEST).to.equal('true');
+      return;
+    }
     const reqOptions = {
       uri: `${weatherUrl}?appid=${process.env.WEATHER_KEY}&id=${process.env.WEATHER_CITY_ID}`,
       json: true
@@ -143,7 +148,7 @@ describe('Database', function() {
     before((done) => {
       const exec = require('child_process').exec;
       // Load dump from 2018-09-21
-      const command = 'mongorestore -h localhost -d post_test --drop ./sample-data/indego';
+      const command = 'mongorestore -h localhost -d post_test --drop ./server/sample-data/indego';
       exec(command, (err, stdout, stderr) => {
         if (err) {
           return done(err);
@@ -158,7 +163,7 @@ describe('Database', function() {
       const time = '2018-09-20T01:00';
       const getOptions = {
         method: 'GET',
-        uri: `${process.env.ROOT_URL}/api/v1/get/stations/${station}?at=${time}`,
+        uri: `${process.env.ROOT_URL}/api/v1/stations/${station}?at=${time}`,
         json: true
       };
       const result = await request(getOptions)
@@ -175,7 +180,7 @@ describe('Database', function() {
       const time = '2018-09-20T08:00';
       const getOptions = {
         method: 'GET',
-        uri: `${process.env.ROOT_URL}/api/v1/get/stations?at=${time}`,
+        uri: `${process.env.ROOT_URL}/api/v1/stations?at=${time}`,
         json: true
       };
       const result = await request(getOptions)
@@ -194,7 +199,7 @@ describe('Database', function() {
       const endTime = '2018-09-21T00:00';
       const getOptions = {
         method: 'GET',
-        uri: `${process.env.ROOT_URL}/api/v1/get/stations/${station}?from=${startTime}&to=${endTime}`,
+        uri: `${process.env.ROOT_URL}/api/v1/stations/${station}?from=${startTime}&to=${endTime}`,
         json: true
       };
       const result = await request(getOptions)
@@ -212,7 +217,7 @@ describe('Database', function() {
       const endTime = '2018-09-21T00:00';
       const getOptions = {
         method: 'GET',
-        uri: `${process.env.ROOT_URL}/api/v1/get/stations/${station}?from=${startTime}&to=${endTime}&frequency=daily`,
+        uri: `${process.env.ROOT_URL}/api/v1/stations/${station}?from=${startTime}&to=${endTime}&frequency=daily`,
         json: true
       };
       const result = await request(getOptions)
