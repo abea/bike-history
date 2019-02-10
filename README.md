@@ -29,7 +29,7 @@ Fully formed data is available starting 2018-09-17T09:00.
     - [X] One station at time query
     - [X] One station over time span query
 - [X] App is hosted and accessible publicly
-- [ ] Extra credit: Implement Vue front end with data visualization
+- [X] Extra credit: Implement Vue front end with data visualization
 
 ### Snapshot of all stations at a specified time
 
