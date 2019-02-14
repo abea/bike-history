@@ -5,7 +5,7 @@ const uuid = require('uuid/v4');
 const moment = require('moment-timezone');
 const h = require('../helpers');
 let savingMessage = 'Stations saving...';
-let finishedCount = 0; // TODO: Remove this and the logs once in production.
+let finishedCount = 0; // TODO: Add verbose flag to activate this logging.
 
 exports.saveStations = async (req, res) => {
   const stations = req.body.stations;
