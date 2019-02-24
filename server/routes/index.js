@@ -7,13 +7,15 @@ const { catchErrors } = require('../handlers/errorHandlers');
 const indegoDump = require('../sample-data/indego-dump.json');
 const path = require('path');
 
+const dist = '/../../dist';
+
 router.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname + '/../../dist/index.html'));
+  res.sendFile(path.join(__dirname + `${dist}/index.html`));
 });
 
 router.get('/:dir/:file', (req, res) => {
   res.sendFile(
-    path.join(`${__dirname}/../../dist/${req.params.dir}/${req.params.file}`)
+    path.join(`${__dirname}${dist}/${req.params.dir}/${req.params.file}`)
   );
 });
 
