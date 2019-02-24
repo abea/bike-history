@@ -19,26 +19,32 @@
         </div>
         <div class="form-group col" v-if="mode === 'getOneSeries'">
           <label class="" for="startDate">Start date</label>
-          <input class="form-control" type="date" name="startDate" v-model="fromDate">
+          <input class="form-control" type="date" name="startDate"
+            v-model="fromDate" v-on:change="resetInfo">
         </div>
         <div class="form-group col" v-if="mode === 'getOneSeries'">
           <label for="startTime">Start time</label>
-          <input class="form-control" type="time" name="startTime" v-model="fromTime">
+          <input class="form-control" type="time" name="startTime"
+            v-model="fromTime" v-on:change="resetInfo">
         </div>
         <div class="form-group col">
           <label class="" for="endDate">
             {{ mode === 'getOneSeries' ? 'End Date' : 'Snapshot date' }}
           </label>
-          <input class="form-control" type="date" name="endDate" v-model="toDate">
+          <input class="form-control" type="date" name="endDate"
+            v-model="toDate" v-on:change="resetInfo">
         </div>
         <div class="form-group col">
           <label for="endTime">
             {{ mode === 'getOneSeries' ? 'End Time' : 'Snapshot time' }}
           </label>
-          <input class="form-control" type="time" name="endTime" v-model="toTime">
+          <input class="form-control" type="time" name="endTime"
+            v-model="toTime" v-on:change="resetInfo">
         </div>
-        <div class="form-group col-12" v-if="mode !== 'getAllSnap'">
-          <label for="stationId">Station</label>
+        <div class="form-group col-12"
+          v-if="mode !== 'getAllSnap' && stationIds[0].address"
+        >
+          <label for="stationId">Select station</label>
           <select class="form-control" id="stationId" v-model="stationId">
             <option v-if="sta.id" v-for="sta in stationIds" :value="sta.id" :key="sta.id">
               {{ sta.address }}
@@ -72,10 +78,10 @@ import moment from 'moment';
 
 const initialMoment = moment().subtract({ hours: 1 });
 const initialDate = initialMoment.format('YYYY-MM-DD');
-const initialTime = initialMoment.format('HH:mm:ss');
+const initialTime = initialMoment.format('HH:00');
 const initialFrom = initialMoment.subtract({ hours: 72 });
 const initialFromDate = initialFrom.format('YYYY-MM-DD');
-const initialFromTime = initialFrom.format('HH:mm:ss');
+const initialFromTime = initialFrom.format('HH:00');
 
 export default {
   name: 'Analytic',
