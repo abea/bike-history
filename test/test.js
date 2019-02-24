@@ -15,7 +15,7 @@ const bodyParser = require('body-parser');
 const app = express();
 let server;
 
-require('dotenv').config({ path: `${__dirname}/../variables.env` });
+require('dotenv').config();
 
 const weatherUrl = 'http://api.openweathermap.org/data/2.5/weather';
 

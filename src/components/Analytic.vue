@@ -11,7 +11,7 @@
       <form class="col-lg-6 form-row">
         <div class="form-group col-12">
           <label for="mode">Query mode</label>
-          <select class="form-control" id="mode" v-model="mode">
+          <select class="form-control" id="mode" v-model="mode" v-on:change="resetInfo">
             <option v-for="mode in modes" :value="mode.name" :key="mode.name">
               {{ mode.label }}
             </option>
@@ -19,26 +19,32 @@
         </div>
         <div class="form-group col" v-if="mode === 'getOneSeries'">
           <label class="" for="startDate">Start date</label>
-          <input class="form-control" type="date" name="startDate" v-model="fromDate">
+          <input class="form-control" type="date" name="startDate"
+            :min="minDate" v-model="fromDate" v-on:change="resetInfo">
         </div>
         <div class="form-group col" v-if="mode === 'getOneSeries'">
           <label for="startTime">Start time</label>
-          <input class="form-control" type="time" name="startTime" v-model="fromTime">
+          <input class="form-control" type="time" name="startTime"
+            v-model="fromTime" v-on:change="resetInfo">
         </div>
         <div class="form-group col">
           <label class="" for="endDate">
             {{ mode === 'getOneSeries' ? 'End Date' : 'Snapshot date' }}
           </label>
-          <input class="form-control" type="date" name="endDate" v-model="toDate">
+          <input class="form-control" type="date" name="endDate"
+            :min="minDate" v-model="toDate" v-on:change="resetInfo">
         </div>
         <div class="form-group col">
           <label for="endTime">
             {{ mode === 'getOneSeries' ? 'End Time' : 'Snapshot time' }}
           </label>
-          <input class="form-control" type="time" name="endTime" v-model="toTime">
+          <input class="form-control" type="time" name="endTime"
+            v-model="toTime" v-on:change="resetInfo">
         </div>
-        <div class="form-group col-12" v-if="mode !== 'getAllSnap'">
-          <label for="stationId">Station</label>
+        <div class="form-group col-12"
+          v-if="mode !== 'getAllSnap' && stationIds[0].address"
+        >
+          <label for="stationId">Select station</label>
           <select class="form-control" id="stationId" v-model="stationId">
             <option v-if="sta.id" v-for="sta in stationIds" :value="sta.id" :key="sta.id">
               {{ sta.address }}
@@ -46,12 +52,18 @@
           </select>
         </div>
       </form>
+      <p class="col-lg-6" v-if="loading">
+        <strong>👩🏿‍🔬 Reticulating splines... 👨🏽‍💻</strong>
+      </p>
       <p class="col-lg-6" v-if="error || (mode !== 'getAllSnap' && !stationAddress)">
         <strong>No data returned for this request.</strong>
       </p>
-      <PieChart class="col-lg-6" :info="info" v-else-if="mode === 'getOneSnap'"/>
-      <BarChart class="col-lg-12" :info="info" v-else-if="mode === 'getAllSnap'"/>
-      <LineChart class="col-lg-12" :info="info" v-else-if="mode === 'getOneSeries'"/>
+      <PieChart class="col-lg-6" :info="info"
+        v-else-if="mode === 'getOneSnap' && info"/>
+      <BarChart class="col-lg-12" :info="info"
+        v-else-if="mode === 'getAllSnap' && info"/>
+      <LineChart class="col-lg-12" :info="info"
+        v-else-if="mode === 'getOneSeries' && info"/>
     </div>
   </div>
   </section>
@@ -66,10 +78,10 @@ import moment from 'moment';
 
 const initialMoment = moment().subtract({ hours: 1 });
 const initialDate = initialMoment.format('YYYY-MM-DD');
-const initialTime = initialMoment.format('HH:mm:ss');
+const initialTime = initialMoment.format('HH:00');
 const initialFrom = initialMoment.subtract({ hours: 72 });
 const initialFromDate = initialFrom.format('YYYY-MM-DD');
-const initialFromTime = initialFrom.format('HH:mm:ss');
+const initialFromTime = initialFrom.format('HH:00');
 
 export default {
   name: 'Analytic',
@@ -85,6 +97,7 @@ export default {
       toTime: initialTime,
       fromDate: initialFromDate,
       fromTime: initialFromTime,
+      minDate: process.env.VUE_APP_MIN_DATE,
       info: {},
       mode: 'getOneSnap',
       stationIds: [3069],
@@ -102,7 +115,8 @@ export default {
           label: 'One station over time'
         }
       ],
-      error: null
+      error: null,
+      loading: true
     };
   },
   computed: {
@@ -127,6 +141,9 @@ export default {
     }
   },
   methods: {
+    resetInfo: function () {
+      this.info = null;
+    },
     getInfo: async function(opts) {
       const stationData = await ApiService[this.mode]({
         id: opts.id,
@@ -162,6 +179,8 @@ export default {
             default:
               console.error('Request mode not recognized.');
           }
+
+          this.loading = false;
 
           return data;
         })
@@ -207,6 +226,8 @@ export default {
         toTime: this.toTime
       }),
       async function(data) {
+        this.loading = true;
+
         this.info = await this.getInfo({
           mode: data.mode,
           id: data.stationId,

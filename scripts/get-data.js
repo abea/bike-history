@@ -1,5 +1,5 @@
 const request = require('request-promise');
-require('dotenv').config({ path: `${__dirname}/../variables.env` });
+require('dotenv').config();
 
 const weatherUrl = `http://api.openweathermap.org/data/2.5/weather?appid=${
   process.env.WEATHER_KEY
