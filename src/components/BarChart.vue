@@ -10,8 +10,8 @@ export default {
       required: true
     }
   },
-  watch: {
-    info: function() {
+  methods: {
+    render: function() {
       const labels = [];
       const colors = [];
       const data = [];
@@ -39,6 +39,14 @@ export default {
         {}
       );
     }
+  },
+  watch: {
+    info: function() {
+      this.render();
+    }
+  },
+  mounted: function () {
+    this.render();
   }
 };
 </script>

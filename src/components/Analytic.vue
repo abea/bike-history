@@ -11,7 +11,7 @@
       <form class="col-lg-6 form-row">
         <div class="form-group col-12">
           <label for="mode">Query mode</label>
-          <select class="form-control" id="mode" v-model="mode">
+          <select class="form-control" id="mode" v-model="mode" v-on:change="resetInfo">
             <option v-for="mode in modes" :value="mode.name" :key="mode.name">
               {{ mode.label }}
             </option>
@@ -46,12 +46,18 @@
           </select>
         </div>
       </form>
+      <p class="col-lg-6" v-if="loading">
+        <strong>👩🏿‍🔬 Reticulating splines... 👨🏽‍💻</strong>
+      </p>
       <p class="col-lg-6" v-if="error || (mode !== 'getAllSnap' && !stationAddress)">
         <strong>No data returned for this request.</strong>
       </p>
-      <PieChart class="col-lg-6" :info="info" v-else-if="mode === 'getOneSnap'"/>
-      <BarChart class="col-lg-12" :info="info" v-else-if="mode === 'getAllSnap'"/>
-      <LineChart class="col-lg-12" :info="info" v-else-if="mode === 'getOneSeries'"/>
+      <PieChart class="col-lg-6" :info="info"
+        v-else-if="mode === 'getOneSnap' && info"/>
+      <BarChart class="col-lg-12" :info="info"
+        v-else-if="mode === 'getAllSnap' && info"/>
+      <LineChart class="col-lg-12" :info="info"
+        v-else-if="mode === 'getOneSeries' && info"/>
     </div>
   </div>
   </section>
@@ -102,7 +108,8 @@ export default {
           label: 'One station over time'
         }
       ],
-      error: null
+      error: null,
+      loading: true
     };
   },
   computed: {
@@ -127,6 +134,9 @@ export default {
     }
   },
   methods: {
+    resetInfo: function () {
+      this.info = null;
+    },
     getInfo: async function(opts) {
       const stationData = await ApiService[this.mode]({
         id: opts.id,
@@ -162,6 +172,8 @@ export default {
             default:
               console.error('Request mode not recognized.');
           }
+
+          this.loading = false;
 
           return data;
         })
@@ -207,6 +219,8 @@ export default {
         toTime: this.toTime
       }),
       async function(data) {
+        this.loading = true;
+
         this.info = await this.getInfo({
           mode: data.mode,
           id: data.stationId,

@@ -10,8 +10,8 @@ export default {
       required: true
     }
   },
-  watch: {
-    info: function() {
+  methods: {
+    render: function () {
       this.renderChart(
         {
           labels: ['Empty Docks', 'Available Bikes'],
@@ -26,6 +26,14 @@ export default {
         {}
       );
     }
+  },
+  watch: {
+    info: function() {
+      this.render();
+    }
+  },
+  mounted: function () {
+    this.render();
   }
 };
 </script>
