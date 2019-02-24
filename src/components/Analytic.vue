@@ -20,7 +20,7 @@
         <div class="form-group col" v-if="mode === 'getOneSeries'">
           <label class="" for="startDate">Start date</label>
           <input class="form-control" type="date" name="startDate"
-            v-model="fromDate" v-on:change="resetInfo">
+            :min="minDate" v-model="fromDate" v-on:change="resetInfo">
         </div>
         <div class="form-group col" v-if="mode === 'getOneSeries'">
           <label for="startTime">Start time</label>
@@ -32,7 +32,7 @@
             {{ mode === 'getOneSeries' ? 'End Date' : 'Snapshot date' }}
           </label>
           <input class="form-control" type="date" name="endDate"
-            v-model="toDate" v-on:change="resetInfo">
+            :min="minDate" v-model="toDate" v-on:change="resetInfo">
         </div>
         <div class="form-group col">
           <label for="endTime">
@@ -97,6 +97,7 @@ export default {
       toTime: initialTime,
       fromDate: initialFromDate,
       fromTime: initialFromTime,
+      minDate: process.env.VUE_APP_MIN_DATE,
       info: {},
       mode: 'getOneSnap',
       stationIds: [3069],
