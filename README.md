@@ -1,4 +1,4 @@
-## P'unk Avenue Node.js Backend Challenge
+## Node.js Backend Challenge
 
 ### Links
 - [Indego](https://www.rideindego.com) is Philadelphia's bike-sharing program, with many bike stations in the city.
@@ -11,7 +11,7 @@ Using MongoDB, Node.js, Express, [Bluebird](https://npmjs.org/package/bluebird),
 ### Live app info:
 - URL: https://indego-history.herokuapp.com/
 
-Fully formed data is available starting 2018-09-17T09:00.
+Fully formed data is available starting 2019-02-10T00:00.
 
 ## Requirements
 - [X] App stores Indego and weather data
@@ -90,31 +90,3 @@ The `frequency` query parameter, if present, may be `hourly` or `daily`. The API
 ### Unit tests
 
 All of the APIs should have unit test coverage; invoking `npm test` should test your package. We suggest [mocha](https://npmjs.org/package/mocha) but other frameworks are fine.
-
-## Hosting details
-
-You'll need to make your API available on a server that we can communicate with from the office, not just on your laptop. Although this is not a system administration job, we're interested in seeing that you are comfortable with the fundamentals of installing services on Linux and/or working with cloud providers like Heroku.
-
-You might wish to use Linode or Digital Ocean and install both Node and MongoDB on a VPS yourself. Alternatively you might use a combination of Heroku and MLab, both of which have free tiers available.
-
-## Criteria
-
-Your work will be evaluated primarily on:
-
-* Consistency of coding style (ideally in harmony with our [JavaScript style guide](https://github.com/punkave/best-practices/blob/master/javascript.md))
-* Idiomatic use of `express`, `mongodb`, `bluebird` and `lodash`
-* Correct use of promises, including proper error handling. async/await may be used
-* Absence of "callback hell"
-* Efficient MongoDB queries
-* Correct and complete unit test coverage
-* General quality of code and technical communication.
-
-## How to submit your work
-
-Fork this project on github. When you're finished, send us the URL of your public repository and the URL of your running instance of the API. *Consider using `.gitignore` to avoid putting any deployment credentials or API key in your public repository.*
-
-## Extra credit
-
-* A simple front end React or Vue application, and/or Express-powered webpage, offering a visualization of all or part of the data utilizing the API you have built as a back end.
-* Import the [historical data available from Indego](https://www.rideindego.com/about/data/) so that it is available via the queries above. Note that this is in addition to, not an alternative to, downloading live data periodically and adding it to your own historical database.
-* Anything else you think is cool, relevant, and consistent with the other requirements.
