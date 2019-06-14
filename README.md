@@ -8,10 +8,8 @@
 ### Goal
 Using MongoDB, Node.js, Express, [Bluebird](https://npmjs.org/package/bluebird), Lodash and the Linux, Node.js and MongoDB hosting of your choice (see below for hosting details including free options), **create a new API server which accumulates data over time and provides access to historical data for both weather and Indego bike availability, supporting the following queries at minimum.** Note that it is sufficient to store data at hourly intervals.
 
-### Live app info:
-- URL: https://indego-history.herokuapp.com/
-
-Fully formed data is available starting 2019-02-10T00:00.
+### Running in production
+To run in production, schedule the command `npm run updater` to run hourly on the hour with cron or otherwise to collect data.
 
 ## Requirements
 - [X] App stores Indego and weather data
